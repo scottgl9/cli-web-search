@@ -9,11 +9,11 @@ This document tracks the overall completion progress of the cli-web-search proje
 | Phase | Status | Progress | Target Date |
 |-------|--------|----------|-------------|
 | Phase 1: MVP | ✅ Complete | 95% | Week 3 |
-| Phase 2: Enhanced | ✅ Complete | 90% | Week 5 |
+| Phase 2: Enhanced | ✅ Complete | 100% | Week 5 |
 | Phase 3: Polish | Not Started | 5% | Week 7 |
 | Phase 4: Extended | Not Started | 0% | Future |
 
-**Total Project Progress: ~65%**
+**Total Project Progress: ~70%**
 
 ---
 
@@ -147,11 +147,11 @@ This document tracks the overall completion progress of the cli-web-search proje
 | Firecrawl API | ✅ Complete | |
 | Provider status cmd | ✅ Complete | `providers` subcommand |
 
-### Provider Fallback (3/4)
+### Provider Fallback (4/4)
 | Task | Status | Notes |
 |------|--------|-------|
 | Fallback chain | ✅ Complete | Configured in YAML |
-| Retry w/ backoff | ⬜ Not Started | |
+| Retry w/ backoff | ✅ Complete | Exponential backoff, respects Retry-After |
 | Rate limit detection | ✅ Complete | |
 | Fallback config | ✅ Complete | |
 

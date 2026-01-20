@@ -94,7 +94,7 @@ Task tracking for the cli-web-search project. Check items off as completed.
 
 ### Provider Fallback
 - [x] Implement fallback chain logic
-- [ ] Add retry with exponential backoff
+- [x] Add retry with exponential backoff
 - [x] Handle rate limit detection
 - [x] Add fallback configuration
 

@@ -19,6 +19,13 @@ use crate::error::{Result, SearchError};
 use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
 use std::time::Duration;
+use tokio::time::sleep;
+
+/// Maximum number of retries per provider
+const MAX_RETRIES: u32 = 3;
+
+/// Base delay for exponential backoff (in milliseconds)
+const BASE_DELAY_MS: u64 = 500;
 
 /// A single search result
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -182,7 +189,7 @@ impl ProviderRegistry {
         result
     }
 
-    /// Execute search with fallback
+    /// Execute search with fallback and retry logic
     pub async fn search_with_fallback(
         &self,
         query: &str,
@@ -206,10 +213,12 @@ impl ProviderRegistry {
         let mut last_error = String::new();
 
         for provider in providers {
-            match provider.search(query, options).await {
+            // Try each provider with retries
+            match self.search_with_retry(provider, query, options).await {
                 Ok(results) => return Ok((results, provider.name())),
                 Err(e) => {
                     last_error = e.to_string();
+                    tracing::warn!("Provider {} failed: {}", provider.name(), e);
                     // Continue to next provider on rate limit or API errors
                     match &e {
                         SearchError::RateLimited { .. }
@@ -223,6 +232,61 @@ impl ProviderRegistry {
         }
 
         Err(SearchError::AllProvidersFailed(last_error))
+    }
+
+    /// Execute search with exponential backoff retry
+    async fn search_with_retry(
+        &self,
+        provider: &dyn SearchProvider,
+        query: &str,
+        options: &SearchOptions,
+    ) -> Result<Vec<SearchResult>> {
+        let mut last_error = None;
+
+        for attempt in 0..MAX_RETRIES {
+            match provider.search(query, options).await {
+                Ok(results) => return Ok(results),
+                Err(e) => {
+                    // Only retry on transient errors
+                    let should_retry = matches!(
+                        &e,
+                        SearchError::Network(_) | SearchError::RateLimited { .. }
+                    );
+
+                    if !should_retry || attempt == MAX_RETRIES - 1 {
+                        return Err(e);
+                    }
+
+                    // Calculate backoff delay with exponential increase
+                    let delay_ms = BASE_DELAY_MS * 2u64.pow(attempt);
+                    
+                    // Check if we got a Retry-After header for rate limiting
+                    let delay = if let SearchError::RateLimited { retry_after: Some(secs), .. } = &e {
+                        Duration::from_secs(*secs)
+                    } else {
+                        Duration::from_millis(delay_ms)
+                    };
+
+                    tracing::debug!(
+                        "Provider {} attempt {} failed, retrying in {:?}: {}",
+                        provider.name(),
+                        attempt + 1,
+                        delay,
+                        e
+                    );
+
+                    last_error = Some(e);
+                    sleep(delay).await;
+                }
+            }
+        }
+
+        Err(last_error.unwrap_or_else(|| {
+            SearchError::Api {
+                provider: provider.name().to_string(),
+                message: "Unknown error after retries".to_string(),
+            }
+        }))
     }
 
     /// List all providers with their status
