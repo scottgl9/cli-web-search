@@ -212,7 +212,7 @@ async fn handle_providers_command() -> Result<()> {
     }
 
     // Also show providers that could be configured but aren't registered
-    let all_providers = ["brave", "google", "duckduckgo", "tavily", "serper"];
+    let all_providers = ["brave", "google", "duckduckgo", "tavily", "serper", "firecrawl"];
     let registered: Vec<_> = statuses.iter().map(|s| s.name.as_str()).collect();
 
     let unregistered: Vec<_> = all_providers

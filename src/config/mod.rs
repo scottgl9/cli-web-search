@@ -53,6 +53,10 @@ pub struct ProvidersConfig {
     /// Serper configuration
     #[serde(default)]
     pub serper: Option<SerperConfig>,
+
+    /// Firecrawl configuration
+    #[serde(default)]
+    pub firecrawl: Option<FirecrawlConfig>,
 }
 
 /// Brave Search provider configuration
@@ -103,6 +107,17 @@ pub struct TavilyConfig {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SerperConfig {
     /// API key for Serper
+    pub api_key: String,
+
+    /// Whether this provider is enabled
+    #[serde(default = "default_true")]
+    pub enabled: bool,
+}
+
+/// Firecrawl configuration
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct FirecrawlConfig {
+    /// API key for Firecrawl
     pub api_key: String,
 
     /// Whether this provider is enabled
@@ -226,6 +241,11 @@ impl Config {
                 providers.push("serper".to_string());
             }
         }
+        if let Some(ref firecrawl) = self.providers.firecrawl {
+            if firecrawl.enabled {
+                providers.push("firecrawl".to_string());
+            }
+        }
 
         providers
     }
@@ -277,6 +297,11 @@ impl Config {
         if let Some(ref serper) = self.providers.serper {
             map.insert("providers.serper.api_key".to_string(), mask_api_key(&serper.api_key));
             map.insert("providers.serper.enabled".to_string(), serper.enabled.to_string());
+        }
+
+        if let Some(ref firecrawl) = self.providers.firecrawl {
+            map.insert("providers.firecrawl.api_key".to_string(), mask_api_key(&firecrawl.api_key));
+            map.insert("providers.firecrawl.enabled".to_string(), firecrawl.enabled.to_string());
         }
 
         map.insert("defaults.num_results".to_string(), self.defaults.num_results.to_string());

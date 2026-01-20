@@ -1,10 +1,12 @@
 //! Search provider infrastructure
 
 mod brave;
+mod firecrawl;
 mod google;
 mod tavily;
 
 pub use brave::BraveProvider;
+pub use firecrawl::FirecrawlProvider;
 pub use google::GoogleProvider;
 pub use tavily::TavilyProvider;
 
@@ -269,6 +271,13 @@ pub fn build_registry(config: &crate::config::Config) -> ProviderRegistry {
     if let Some(ref tavily_config) = config.providers.tavily {
         if tavily_config.enabled {
             registry.register(Box::new(TavilyProvider::new(tavily_config.api_key.clone())));
+        }
+    }
+
+    // Register Firecrawl provider if configured
+    if let Some(ref firecrawl_config) = config.providers.firecrawl {
+        if firecrawl_config.enabled {
+            registry.register(Box::new(FirecrawlProvider::new(firecrawl_config.api_key.clone())));
         }
     }
 

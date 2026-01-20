@@ -8,12 +8,12 @@ This document tracks the overall completion progress of the cli-web-search proje
 
 | Phase | Status | Progress | Target Date |
 |-------|--------|----------|-------------|
-| Phase 1: MVP | In Progress | 85% | Week 3 |
-| Phase 2: Enhanced | In Progress | 70% | Week 5 |
+| Phase 1: MVP | In Progress | 90% | Week 3 |
+| Phase 2: Enhanced | In Progress | 75% | Week 5 |
 | Phase 3: Polish | Not Started | 5% | Week 7 |
 | Phase 4: Extended | Not Started | 0% | Future |
 
-**Total Project Progress: ~50%**
+**Total Project Progress: ~55%**
 
 ---
 
@@ -87,6 +87,16 @@ This document tracks the overall completion progress of the cli-web-search proje
 | Unit tests | ✅ Complete | |
 | Integration tests | ⬜ Not Started | Requires API key |
 
+### Firecrawl Provider (5/6)
+| Task | Status | Notes |
+|------|--------|-------|
+| API client | ✅ Complete | |
+| Authentication | ✅ Complete | Bearer token |
+| Result parsing | ✅ Complete | |
+| Rate limit handling | ✅ Complete | |
+| Unit tests | ✅ Complete | |
+| Integration tests | ⬜ Not Started | Requires API key |
+
 ### Output Formatting (5/5)
 | Task | Status | Notes |
 |------|--------|-------|
@@ -109,12 +119,13 @@ This document tracks the overall completion progress of the cli-web-search proje
 
 ## Phase 2: Enhanced Features Breakdown
 
-### Additional Providers (2/4)
+### Additional Providers (3/5)
 | Task | Status | Notes |
 |------|--------|-------|
 | DuckDuckGo API | ⬜ Not Started | |
 | Tavily API | ✅ Complete | |
 | Serper API | ⬜ Not Started | |
+| Firecrawl API | ✅ Complete | |
 | Provider status cmd | ✅ Complete | `providers` subcommand |
 
 ### Provider Fallback (3/4)
@@ -188,7 +199,7 @@ This document tracks the overall completion progress of the cli-web-search proje
 
 ### [0.1.0] - In Development
 - Initial MVP implementation
-- Brave, Google CSE, and Tavily providers
+- Brave, Google CSE, Tavily, and Firecrawl providers
 - JSON, Markdown, and Text output formats
 - Configuration system with env var support
 - In-memory caching with TTL
@@ -226,9 +237,9 @@ This document tracks the overall completion progress of the cli-web-search proje
 ### Week 1 (Implementation)
 - Implemented core CLI framework with clap
 - Created configuration system with YAML and env var support
-- Implemented Brave, Google CSE, and Tavily providers
+- Implemented Brave, Google CSE, Tavily, and Firecrawl providers
 - Created JSON, Markdown, and Text output formatters
 - Implemented in-memory caching
 - Added provider fallback chain
-- All 27 unit tests passing
+- All 30 unit tests passing
 - Successfully built release binary for Linux x86_64

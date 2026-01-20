@@ -112,6 +112,18 @@ fn apply_env_overrides(config: &mut Config) {
         }
     }
     
+    // Firecrawl API key
+    if let Ok(api_key) = std::env::var(format!("{}_FIRECRAWL_API_KEY", ENV_PREFIX)) {
+        if config.providers.firecrawl.is_none() {
+            config.providers.firecrawl = Some(FirecrawlConfig {
+                api_key: api_key.clone(),
+                enabled: true,
+            });
+        } else if let Some(ref mut firecrawl) = config.providers.firecrawl {
+            firecrawl.api_key = api_key;
+        }
+    }
+    
     // Default provider override
     if let Ok(provider) = std::env::var(format!("{}_DEFAULT_PROVIDER", ENV_PREFIX)) {
         config.default_provider = Some(provider);
@@ -231,6 +243,21 @@ pub fn set_config_value(key: &str, value: &str) -> Result<()> {
         ["providers", "serper", "enabled"] => {
             if let Some(ref mut serper) = config.providers.serper {
                 serper.enabled = value.parse().unwrap_or(true);
+            }
+        }
+        ["providers", "firecrawl", "api_key"] => {
+            if config.providers.firecrawl.is_none() {
+                config.providers.firecrawl = Some(FirecrawlConfig {
+                    api_key: value.to_string(),
+                    enabled: true,
+                });
+            } else if let Some(ref mut firecrawl) = config.providers.firecrawl {
+                firecrawl.api_key = value.to_string();
+            }
+        }
+        ["providers", "firecrawl", "enabled"] => {
+            if let Some(ref mut firecrawl) = config.providers.firecrawl {
+                firecrawl.enabled = value.parse().unwrap_or(true);
             }
         }
         ["defaults", "num_results"] => {

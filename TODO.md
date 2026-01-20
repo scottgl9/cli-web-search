@@ -60,6 +60,14 @@ Task tracking for the cli-web-search project. Check items off as completed.
 - [x] Add unit tests
 - [ ] Add integration tests
 
+### Firecrawl Provider (P1)
+- [x] Implement Firecrawl Search API client
+- [x] Handle authentication
+- [x] Parse search results
+- [x] Implement rate limit handling
+- [x] Add unit tests
+- [ ] Add integration tests
+
 ### Output Formatting
 - [x] Define output format trait
 - [x] Implement JSON formatter
@@ -81,6 +89,7 @@ Task tracking for the cli-web-search project. Check items off as completed.
 ### Additional Providers
 - [ ] Implement DuckDuckGo Instant Answer API
 - [ ] Implement Serper API
+- [x] Implement Firecrawl Search API
 - [x] Add provider status command
 
 ### Provider Fallback

@@ -144,6 +144,8 @@ pub enum Provider {
     Tavily,
     /// Serper API
     Serper,
+    /// Firecrawl Search API
+    Firecrawl,
 }
 
 impl std::fmt::Display for Provider {
@@ -154,6 +156,7 @@ impl std::fmt::Display for Provider {
             Provider::DuckDuckGo => write!(f, "duckduckgo"),
             Provider::Tavily => write!(f, "tavily"),
             Provider::Serper => write!(f, "serper"),
+            Provider::Firecrawl => write!(f, "firecrawl"),
         }
     }
 }
