@@ -74,6 +74,9 @@ pub enum Commands {
 
     /// Manage result cache
     Cache(CacheArgs),
+
+    /// Fetch a web page by URL
+    Fetch(FetchArgs),
 }
 
 /// Configuration subcommand arguments
@@ -128,6 +131,53 @@ pub enum CacheCommands {
 
     /// Show cache statistics
     Stats,
+}
+
+/// Fetch subcommand arguments
+#[derive(Args, Debug)]
+pub struct FetchArgs {
+    /// URL to fetch
+    pub url: String,
+
+    /// Output format for the fetched content
+    #[arg(short, long, value_enum, default_value = "text")]
+    pub format: FetchFormat,
+
+    /// Request timeout in seconds
+    #[arg(long, default_value = "30")]
+    pub timeout: u64,
+
+    /// Write output to file (default: auto-generated in temp directory)
+    #[arg(short, long)]
+    pub output: Option<String>,
+
+    /// Maximum content length in bytes (0 = no limit)
+    #[arg(long, default_value = "0")]
+    pub max_length: usize,
+
+    /// Output as JSON (includes metadata)
+    #[arg(long)]
+    pub json: bool,
+
+    /// Print content to stdout instead of saving to file
+    #[arg(long)]
+    pub stdout: bool,
+
+    /// Suppress non-essential output
+    #[arg(short, long)]
+    pub quiet: bool,
+}
+
+/// Fetch output format options
+#[derive(ValueEnum, Clone, Debug, Default, PartialEq, Eq)]
+pub enum FetchFormat {
+    /// Plain text (HTML tags stripped)
+    #[default]
+    Text,
+    /// Raw HTML content
+    Html,
+    /// Markdown format
+    Markdown,
 }
 
 /// Available search providers
@@ -484,5 +534,89 @@ mod tests {
     fn test_date_range_equality() {
         assert_eq!(DateRange::Day, DateRange::Day);
         assert_ne!(DateRange::Day, DateRange::Week);
+    }
+
+    #[test]
+    fn test_cli_parse_fetch_command() {
+        let cli = Cli::parse_from(["cli-web-search", "fetch", "https://example.com"]);
+        match cli.command {
+            Some(Commands::Fetch(args)) => {
+                assert_eq!(args.url, "https://example.com");
+                assert_eq!(args.format, FetchFormat::Text);
+                assert_eq!(args.timeout, 30);
+                assert!(!args.json);
+                assert!(!args.stdout);
+                assert!(!args.quiet);
+                assert!(args.output.is_none());
+            }
+            _ => panic!("Expected Fetch command"),
+        }
+    }
+
+    #[test]
+    fn test_cli_parse_fetch_with_format() {
+        for (flag, expected) in [
+            ("text", FetchFormat::Text),
+            ("html", FetchFormat::Html),
+            ("markdown", FetchFormat::Markdown),
+        ] {
+            let cli =
+                Cli::parse_from(["cli-web-search", "fetch", "-f", flag, "https://example.com"]);
+            match cli.command {
+                Some(Commands::Fetch(args)) => {
+                    assert_eq!(args.format, expected);
+                }
+                _ => panic!("Expected Fetch command"),
+            }
+        }
+    }
+
+    #[test]
+    fn test_cli_parse_fetch_with_options() {
+        let cli = Cli::parse_from([
+            "cli-web-search",
+            "fetch",
+            "--timeout",
+            "60",
+            "--max-length",
+            "10000",
+            "-o",
+            "output.txt",
+            "https://example.com",
+        ]);
+        match cli.command {
+            Some(Commands::Fetch(args)) => {
+                assert_eq!(args.timeout, 60);
+                assert_eq!(args.max_length, 10000);
+                assert_eq!(args.output, Some("output.txt".to_string()));
+            }
+            _ => panic!("Expected Fetch command"),
+        }
+    }
+
+    #[test]
+    fn test_cli_parse_fetch_with_flags() {
+        let cli = Cli::parse_from([
+            "cli-web-search",
+            "fetch",
+            "--json",
+            "--stdout",
+            "--quiet",
+            "https://example.com",
+        ]);
+        match cli.command {
+            Some(Commands::Fetch(args)) => {
+                assert!(args.json);
+                assert!(args.stdout);
+                assert!(args.quiet);
+            }
+            _ => panic!("Expected Fetch command"),
+        }
+    }
+
+    #[test]
+    fn test_fetch_format_default() {
+        let format = FetchFormat::default();
+        assert_eq!(format, FetchFormat::Text);
     }
 }

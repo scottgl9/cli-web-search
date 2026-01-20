@@ -4,17 +4,19 @@ mod cache;
 mod cli;
 mod config;
 mod error;
+mod fetch;
 mod output;
 mod providers;
 
 use cache::SearchCache;
-use cli::{CacheCommands, Cli, Commands, ConfigCommands};
+use cli::{CacheCommands, Cli, Commands, ConfigCommands, FetchArgs, FetchFormat};
 use config::{config_path, get_config_value, load_config, set_config_value};
 use error::{Result, SearchError};
+use fetch::{ContentFormat, FetchOptions, Fetcher};
 use output::{get_formatter, SearchResponse};
 use providers::{build_registry, SearchOptions};
 use std::fs;
-use std::time::Instant;
+use std::time::{Duration, Instant};
 use tracing_subscriber::EnvFilter;
 
 #[tokio::main]
@@ -131,6 +133,7 @@ async fn handle_command(command: Commands) -> Result<()> {
         Commands::Config(args) => handle_config_command(args.command).await,
         Commands::Providers => handle_providers_command().await,
         Commands::Cache(args) => handle_cache_command(args.command).await,
+        Commands::Fetch(args) => handle_fetch_command(args).await,
     }
 }
 
@@ -253,6 +256,140 @@ async fn handle_cache_command(command: CacheCommands) -> Result<()> {
             Ok(())
         }
     }
+}
+
+async fn handle_fetch_command(args: FetchArgs) -> Result<()> {
+    // Convert CLI format to fetch format
+    let content_format = match args.format {
+        FetchFormat::Text => ContentFormat::Text,
+        FetchFormat::Html => ContentFormat::Html,
+        FetchFormat::Markdown => ContentFormat::Markdown,
+    };
+
+    // Build fetch options
+    let options = FetchOptions::new()
+        .with_timeout(Duration::from_secs(args.timeout))
+        .with_format(content_format)
+        .with_max_length(args.max_length);
+
+    let fetcher = Fetcher::with_options(options);
+
+    // Fetch the URL
+    if !args.quiet && !args.stdout {
+        eprintln!("Fetching: {}", args.url);
+    }
+
+    let response = fetcher.fetch(&args.url).await?;
+
+    // Determine output content
+    let output_content = if args.json {
+        serde_json::to_string_pretty(&response).map_err(|e| SearchError::Api {
+            provider: "fetch".to_string(),
+            message: format!("Failed to serialize response: {}", e),
+        })?
+    } else {
+        response.content.clone()
+    };
+
+    // Handle output
+    if args.stdout {
+        // Print to stdout
+        println!("{}", output_content);
+    } else {
+        // Determine output file path
+        let output_path = if let Some(ref path) = args.output {
+            std::path::PathBuf::from(path)
+        } else {
+            // Generate a temp file path based on URL
+            let cache_dir = config::cache_dir()?;
+            fs::create_dir_all(&cache_dir)?;
+
+            // Create filename from URL
+            let filename = generate_filename_from_url(&args.url, &args.format, args.json);
+            cache_dir.join("fetch").join(filename)
+        };
+
+        // Ensure parent directory exists
+        if let Some(parent) = output_path.parent() {
+            fs::create_dir_all(parent)?;
+        }
+
+        // Write content to file
+        fs::write(&output_path, &output_content)?;
+
+        // Output file location for the agent
+        let title_info = response
+            .title
+            .as_ref()
+            .map(|t| format!(" ({})", t))
+            .unwrap_or_default();
+
+        if args.json {
+            // For JSON output, provide structured response
+            println!("{{");
+            println!("  \"status\": \"success\",");
+            println!("  \"file\": \"{}\",", output_path.display());
+            println!("  \"url\": \"{}\",", response.url);
+            println!("  \"final_url\": \"{}\",", response.final_url);
+            if let Some(title) = &response.title {
+                println!("  \"title\": \"{}\",", title.replace('\"', "\\\""));
+            }
+            println!("  \"content_length\": {},", response.content_length);
+            println!(
+                "  \"format\": \"{}\"",
+                format!("{:?}", args.format).to_lowercase()
+            );
+            println!("}}");
+        } else {
+            println!("Fetched: {}{}", response.final_url, title_info);
+            println!("Content saved to: {}", output_path.display());
+            println!("Size: {} bytes", response.content_length);
+        }
+    }
+
+    Ok(())
+}
+
+/// Generate a filename from a URL
+fn generate_filename_from_url(url: &str, format: &FetchFormat, is_json: bool) -> String {
+    use std::time::{SystemTime, UNIX_EPOCH};
+
+    // Parse URL to get domain and path
+    let parsed = url::Url::parse(url).ok();
+    let domain = parsed
+        .as_ref()
+        .and_then(|u| u.host_str())
+        .unwrap_or("unknown");
+
+    // Create a sanitized version of the path
+    let path_part = parsed
+        .as_ref()
+        .map(|u| u.path())
+        .unwrap_or("")
+        .replace('/', "_")
+        .chars()
+        .filter(|c| c.is_alphanumeric() || *c == '_' || *c == '-')
+        .take(50)
+        .collect::<String>();
+
+    // Add timestamp for uniqueness
+    let timestamp = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .map(|d| d.as_secs())
+        .unwrap_or(0);
+
+    // Determine extension
+    let ext = if is_json {
+        "json"
+    } else {
+        match format {
+            FetchFormat::Html => "html",
+            FetchFormat::Markdown => "md",
+            FetchFormat::Text => "txt",
+        }
+    };
+
+    format!("{}{}_{}.{}", domain, path_part, timestamp, ext)
 }
 
 fn setup_logging(verbosity: u8) {

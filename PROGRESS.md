@@ -200,7 +200,7 @@ This document tracks the overall completion progress of the cli-web-search proje
 ### Testing (5/8)
 | Task | Status | Notes |
 |------|--------|-------|
-| Unit tests | ✅ Complete | 202 unit tests passing |
+| Unit tests | ✅ Complete | 221 unit tests passing |
 | E2E tests | ✅ Complete | 19 mock server tests |
 | Mock provider tests | ✅ Complete | wiremock-based |
 | Linux x86_64 | ✅ Complete | Built and tested |
@@ -287,3 +287,13 @@ This document tracks the overall completion progress of the cli-web-search proje
 - Updated author information to Scott Glover
 - Updated .gitignore for Debian build artifacts
 - Updated README with new installation methods
+
+### Week 4 (URL Fetch Feature)
+- Added `fetch` subcommand for fetching web page content
+- Implemented HTML to text and markdown conversion
+- Added fetch options: format, timeout, max_length, json output
+- Default behavior saves to file for AI agent use
+- Added --stdout flag for direct output
+- Added 5 new CLI tests for fetch command parsing
+- Updated README with fetch command documentation
+- Total tests: 240 (221 unit + 19 integration)

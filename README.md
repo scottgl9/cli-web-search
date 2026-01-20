@@ -137,6 +137,54 @@ cli-web-search providers            # List providers and status
 # Cache management
 cli-web-search cache clear          # Clear the cache
 cli-web-search cache stats          # Show cache statistics
+
+# URL fetching (fetch web page content)
+cli-web-search fetch <URL>                    # Fetch and save to file
+cli-web-search fetch <URL> --stdout           # Print content to stdout
+cli-web-search fetch <URL> -f markdown        # Convert to markdown
+cli-web-search fetch <URL> --json             # Output metadata as JSON
+cli-web-search fetch <URL> -o output.txt      # Save to specific file
+```
+
+### Fetch Command
+
+The `fetch` command retrieves web page content, converting HTML to text or markdown format. This is useful for AI agents that need to read web page content.
+
+#### Fetch Options
+
+| Option | Short | Description |
+|--------|-------|-------------|
+| `--format` | `-f` | Output format (text, html, markdown) - default: text |
+| `--output` | `-o` | Save to specific file |
+| `--stdout` | | Print content to stdout instead of saving to file |
+| `--json` | | Output metadata as JSON |
+| `--timeout` | | Request timeout in seconds (default: 30) |
+| `--max-length` | | Maximum content length in bytes (0 = no limit) |
+| `--quiet` | `-q` | Suppress non-essential output |
+
+#### Fetch Examples
+
+```bash
+# Fetch a page and save to auto-generated file
+cli-web-search fetch "https://example.com"
+# Output: Fetched: https://example.com (Example Domain)
+#         Content saved to: /home/user/.cache/cli-web-search/fetch/example.com_1234567890.txt
+#         Size: 1256 bytes
+
+# Print content directly to stdout (for piping)
+cli-web-search fetch "https://example.com" --stdout
+
+# Convert to markdown format
+cli-web-search fetch "https://docs.rs/tokio" -f markdown --stdout
+
+# Get JSON metadata about the fetched page
+cli-web-search fetch "https://example.com" --json
+
+# Save to a specific file
+cli-web-search fetch "https://example.com" -o page.txt
+
+# Limit content size
+cli-web-search fetch "https://example.com" --max-length 10000 --stdout
 ```
 
 ## Search Providers

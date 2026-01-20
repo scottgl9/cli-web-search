@@ -127,7 +127,7 @@ Task tracking for the cli-web-search project. Check items off as completed.
 - [x] Add troubleshooting guide
 
 ### Testing
-- [x] Add comprehensive unit tests (202 tests passing)
+- [x] Add comprehensive unit tests (221 tests passing)
 - [x] Add end-to-end tests (19 mock server tests)
 - [x] Add mock provider tests
 - [x] Test on Linux x86_64
@@ -175,6 +175,7 @@ Task tracking for the cli-web-search project. Check items off as completed.
 - [ ] Evaluate new search APIs
 
 ### Advanced Features
+- [x] URL fetch command for retrieving web page content
 - [ ] Plugin system for custom providers
 - [ ] MCP server mode
 - [ ] Parallel search across providers
