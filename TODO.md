@@ -119,11 +119,11 @@ Task tracking for the cli-web-search project. Check items off as completed.
 ## Phase 3: Polish (Target: Week 7)
 
 ### Documentation
-- [ ] Write comprehensive README
-- [ ] Add installation instructions
-- [ ] Document all CLI options
-- [ ] Add provider setup guides
-- [ ] Create usage examples
+- [x] Write comprehensive README
+- [x] Add installation instructions
+- [x] Document all CLI options
+- [x] Add provider setup guides
+- [x] Create usage examples
 - [ ] Add troubleshooting guide
 
 ### Testing

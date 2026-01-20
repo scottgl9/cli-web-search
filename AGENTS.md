@@ -105,7 +105,9 @@ src/
 │   ├── brave.rs         # Brave Search
 │   ├── google.rs        # Google CSE
 │   ├── duckduckgo.rs    # DuckDuckGo
-│   └── tavily.rs        # Tavily
+│   ├── tavily.rs        # Tavily
+│   ├── serper.rs        # Serper
+│   └── firecrawl.rs     # Firecrawl
 ├── output/
 │   ├── mod.rs           # Output formatting trait
 │   ├── json.rs          # JSON output
