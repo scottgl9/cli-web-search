@@ -233,6 +233,8 @@ This document tracks the overall completion progress of the cli-web-search proje
 - In-memory caching with TTL
 - Provider fallback chain
 - Search filtering options
+- URL fetch command for web page content retrieval
+- MCP (Model Context Protocol) server mode for AI agent integration
 
 ### [Unreleased]
 - Initial project planning complete
@@ -297,3 +299,13 @@ This document tracks the overall completion progress of the cli-web-search proje
 - Added 5 new CLI tests for fetch command parsing
 - Updated README with fetch command documentation
 - Total tests: 240 (221 unit + 19 integration)
+
+### Week 5 (MCP Server Feature)
+- Added MCP (Model Context Protocol) server mode
+- Implemented JSON-RPC 2.0 protocol over stdio
+- Two MCP tools: `web_search` and `fetch_url`
+- MCP is an optional feature (--features mcp)
+- Added 29 new MCP unit tests
+- Compatible with Claude Desktop and other MCP clients
+- Updated README with MCP server documentation
+- Total tests: 269 (250 unit + 19 integration)

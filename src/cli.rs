@@ -77,6 +77,10 @@ pub enum Commands {
 
     /// Fetch a web page by URL
     Fetch(FetchArgs),
+
+    /// Start MCP (Model Context Protocol) server mode
+    #[cfg(feature = "mcp")]
+    Serve,
 }
 
 /// Configuration subcommand arguments
@@ -618,5 +622,12 @@ mod tests {
     fn test_fetch_format_default() {
         let format = FetchFormat::default();
         assert_eq!(format, FetchFormat::Text);
+    }
+
+    #[cfg(feature = "mcp")]
+    #[test]
+    fn test_cli_parse_serve_command() {
+        let cli = Cli::parse_from(["cli-web-search", "serve"]);
+        assert!(matches!(cli.command, Some(Commands::Serve)));
     }
 }

@@ -5,6 +5,8 @@ mod cli;
 mod config;
 mod error;
 mod fetch;
+#[cfg(feature = "mcp")]
+mod mcp;
 mod output;
 mod providers;
 
@@ -134,6 +136,8 @@ async fn handle_command(command: Commands) -> Result<()> {
         Commands::Providers => handle_providers_command().await,
         Commands::Cache(args) => handle_cache_command(args.command).await,
         Commands::Fetch(args) => handle_fetch_command(args).await,
+        #[cfg(feature = "mcp")]
+        Commands::Serve => mcp::run_mcp_server().await,
     }
 }
 

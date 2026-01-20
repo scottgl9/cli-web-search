@@ -45,7 +45,11 @@ sudo dpkg -i cli-web-search_*.deb
 ### Using Cargo
 
 ```bash
+# Install standard version
 cargo install --git https://github.com/scottgl9/cli-web-search.git
+
+# Install with MCP server support
+cargo install --git https://github.com/scottgl9/cli-web-search.git --features mcp
 ```
 
 ### Requirements
@@ -352,6 +356,88 @@ cli-web-search -f json "your search query" 2>/dev/null
 ```
 
 The JSON output provides structured data that's easy for agents to parse and use.
+
+## MCP Server Mode
+
+cli-web-search can run as an MCP (Model Context Protocol) server, allowing AI assistants like Claude Desktop to use it as a tool.
+
+### Building with MCP Support
+
+MCP support is an optional feature. Build with:
+
+```bash
+cargo build --release --features mcp
+```
+
+### Starting the MCP Server
+
+```bash
+cli-web-search serve
+```
+
+The server runs over stdio, communicating via JSON-RPC 2.0.
+
+### Available MCP Tools
+
+| Tool | Description |
+|------|-------------|
+| `web_search` | Search the web using configured search providers |
+| `fetch_url` | Fetch and convert web page content to text/markdown |
+
+#### web_search Parameters
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `query` | string | Yes | The search query |
+| `num_results` | number | No | Number of results (default: 10) |
+| `provider` | string | No | Preferred search provider |
+
+#### fetch_url Parameters
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `url` | string | Yes | URL to fetch |
+| `format` | string | No | Output format: "text", "html", "markdown" (default: "text") |
+| `max_length` | number | No | Maximum content length in bytes |
+
+### Claude Desktop Configuration
+
+Add to your Claude Desktop config file (`~/.config/claude/claude_desktop_config.json` on Linux, `~/Library/Application Support/Claude/claude_desktop_config.json` on macOS):
+
+```json
+{
+  "mcpServers": {
+    "web-search": {
+      "command": "/path/to/cli-web-search",
+      "args": ["serve"]
+    }
+  }
+}
+```
+
+Replace `/path/to/cli-web-search` with the actual path to your binary.
+
+### Example MCP Requests
+
+**Initialize**:
+```json
+{"jsonrpc": "2.0", "id": 1, "method": "initialize", "params": {"protocolVersion": "2024-11-05", "capabilities": {}, "clientInfo": {"name": "test", "version": "1.0.0"}}}
+```
+
+**List Tools**:
+```json
+{"jsonrpc": "2.0", "id": 2, "method": "tools/list"}
+```
+
+**Call web_search**:
+```json
+{"jsonrpc": "2.0", "id": 3, "method": "tools/call", "params": {"name": "web_search", "arguments": {"query": "rust programming", "num_results": 5}}}
+```
+
+**Call fetch_url**:
+```json
+{"jsonrpc": "2.0", "id": 4, "method": "tools/call", "params": {"name": "fetch_url", "arguments": {"url": "https://example.com", "format": "markdown"}}}
+```
 
 ## Troubleshooting
 

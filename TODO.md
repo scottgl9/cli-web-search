@@ -176,8 +176,8 @@ Task tracking for the cli-web-search project. Check items off as completed.
 
 ### Advanced Features
 - [x] URL fetch command for retrieving web page content
+- [x] MCP server mode (Model Context Protocol for AI agents)
 - [ ] Plugin system for custom providers
-- [ ] MCP server mode
 - [ ] Parallel search across providers
 - [ ] Result deduplication
 - [ ] Search history
