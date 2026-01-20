@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2021"
 authors = ["cli-web-search contributors"]
 description = "A cross-platform CLI web search tool for AI agents"
-license = "MIT"
+license = "Apache-2.0"
 repository = "https://github.com/scottgl9/cli-web-search"
 keywords = ["cli", "web-search", "ai", "search-api"]
 categories = ["command-line-utilities"]
@@ -51,6 +51,8 @@ wiremock = "0.6"
 tempfile = "3"
 
 [profile.release]
-lto = true
-codegen-units = 1
-strip = true
+opt-level = "z"       # Optimize for size
+lto = true            # Link-time optimization
+codegen-units = 1     # Single codegen unit for better optimization
+strip = true          # Strip symbols
+panic = "abort"       # Abort on panic (smaller binary)
