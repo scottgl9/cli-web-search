@@ -124,7 +124,7 @@ Task tracking for the cli-web-search project. Check items off as completed.
 - [x] Document all CLI options
 - [x] Add provider setup guides
 - [x] Create usage examples
-- [ ] Add troubleshooting guide
+- [x] Add troubleshooting guide
 
 ### Testing
 - [x] Add comprehensive unit tests (86 tests passing)

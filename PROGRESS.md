@@ -179,7 +179,7 @@ This document tracks the overall completion progress of the cli-web-search proje
 
 ## Phase 3: Polish Breakdown
 
-### Documentation (5/6)
+### Documentation (6/6)
 | Task | Status | Notes |
 |------|--------|-------|
 | README | ✅ Complete | Comprehensive documentation |
@@ -187,7 +187,7 @@ This document tracks the overall completion progress of the cli-web-search proje
 | CLI docs | ✅ Complete | In README |
 | Provider guides | ✅ Complete | In README |
 | Usage examples | ✅ Complete | In README |
-| Troubleshooting | ⬜ Not Started | |
+| Troubleshooting | ✅ Complete | In README |
 
 ### Testing (2/7)
 | Task | Status | Notes |

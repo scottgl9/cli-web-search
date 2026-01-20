@@ -270,6 +270,123 @@ cli-web-search -f json "your search query" 2>/dev/null
 
 The JSON output provides structured data that's easy for agents to parse and use.
 
+## Troubleshooting
+
+### Common Issues
+
+#### "No search providers configured"
+
+**Problem**: You haven't configured any API keys.
+
+**Solution**: Set up at least one provider:
+```bash
+# Option 1: Use environment variable
+export CLI_WEB_SEARCH_BRAVE_API_KEY="your-api-key"
+
+# Option 2: Use config command
+cli-web-search config set providers.brave.api_key "your-api-key"
+
+# Option 3: Enable DuckDuckGo (no API key needed)
+cli-web-search config set providers.duckduckgo.enabled true
+```
+
+#### "API key not configured" or "Missing API key"
+
+**Problem**: The selected provider doesn't have an API key configured.
+
+**Solution**: Either configure the API key or use a different provider:
+```bash
+# Check which providers are configured
+cli-web-search providers
+
+# Use a different provider
+cli-web-search -p duckduckgo "your query"
+```
+
+#### Rate limiting (HTTP 429)
+
+**Problem**: You've exceeded the API rate limit for a provider.
+
+**Solution**: The tool automatically retries with exponential backoff and falls back to other providers. You can also:
+```bash
+# Wait and try again
+# Or use a different provider
+cli-web-search -p tavily "your query"
+
+# Or disable the rate-limited provider temporarily
+cli-web-search config set providers.brave.enabled false
+```
+
+#### Empty results from DuckDuckGo
+
+**Problem**: DuckDuckGo's Instant Answer API only returns results for certain types of queries.
+
+**Solution**: DuckDuckGo works best for factual queries. For broader searches, use another provider:
+```bash
+cli-web-search -p brave "your query"
+```
+
+#### Network/Connection errors
+
+**Problem**: Unable to reach the search API.
+
+**Solution**:
+```bash
+# Increase timeout
+cli-web-search --timeout 60 "your query"
+
+# Check with verbose output
+cli-web-search -vv "your query"
+```
+
+#### Config file permissions
+
+**Problem**: On Unix systems, the config file should have restricted permissions.
+
+**Solution**: The tool automatically sets 600 permissions. If needed:
+```bash
+chmod 600 ~/.config/cli-web-search/config.yaml
+```
+
+### Debugging
+
+Enable verbose output to diagnose issues:
+
+```bash
+# Basic verbose
+cli-web-search -v "query"
+
+# More verbose
+cli-web-search -vv "query"
+
+# Maximum verbosity
+cli-web-search -vvv "query"
+
+# With Rust backtrace
+RUST_BACKTRACE=1 cli-web-search "query"
+
+# With debug logging
+RUST_LOG=debug cli-web-search "query"
+```
+
+### Validating Configuration
+
+Check your setup:
+
+```bash
+# List all config values
+cli-web-search config list
+
+# Validate API keys work
+cli-web-search config validate
+
+# Show config file location
+cli-web-search config path
+
+# Check provider status
+cli-web-search providers
+```
+
 ## Development
 
 ```bash
@@ -288,7 +405,7 @@ cargo fmt
 
 ## License
 
-MIT License - see LICENSE file for details.
+Apache License 2.0 - see [LICENSE](LICENSE) file for details.
 
 ## Contributing
 
