@@ -153,6 +153,7 @@ struct SerperRequest {
 }
 
 #[derive(Debug, Deserialize)]
+#[allow(dead_code)]
 struct SerperResponse {
     #[serde(default)]
     organic: Option<Vec<SerperResult>>,
@@ -162,6 +163,7 @@ struct SerperResponse {
 }
 
 #[derive(Debug, Deserialize)]
+#[allow(dead_code)]
 struct SerperResult {
     title: String,
     link: String,
@@ -174,6 +176,7 @@ struct SerperResult {
 }
 
 #[derive(Debug, Deserialize)]
+#[allow(dead_code)]
 struct SerperSearchParams {
     #[serde(default)]
     q: Option<String>,

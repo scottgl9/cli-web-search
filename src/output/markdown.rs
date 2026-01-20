@@ -22,7 +22,10 @@ impl OutputFormatter for MarkdownFormatter {
         let mut output = String::new();
 
         // Header
-        output.push_str(&format!("# Search Results: {}\n\n", response.metadata.query));
+        output.push_str(&format!(
+            "# Search Results: {}\n\n",
+            response.metadata.query
+        ));
 
         // Metadata line
         output.push_str(&format!(
@@ -93,7 +96,8 @@ mod tests {
                 SearchResult {
                     title: "The Rust Programming Language".to_string(),
                     url: "https://www.rust-lang.org".to_string(),
-                    snippet: "A language empowering everyone to build reliable software.".to_string(),
+                    snippet: "A language empowering everyone to build reliable software."
+                        .to_string(),
                     position: 1,
                     published_date: None,
                     source: Some("rust-lang.org".to_string()),
@@ -137,13 +141,8 @@ mod tests {
 
     #[test]
     fn test_markdown_default() {
-        let formatter = MarkdownFormatter::default();
-        let response = SearchResponse::new(
-            "test".to_string(),
-            "brave".to_string(),
-            vec![],
-            100,
-        );
+        let formatter = MarkdownFormatter;
+        let response = SearchResponse::new("test".to_string(), "brave".to_string(), vec![], 100);
         let output = formatter.format(&response);
         assert!(output.contains("# Search Results:"));
     }

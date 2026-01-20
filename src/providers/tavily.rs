@@ -36,7 +36,10 @@ impl SearchProvider for TavilyProvider {
 
     async fn search(&self, query: &str, options: &SearchOptions) -> Result<Vec<SearchResult>> {
         if !self.is_configured() {
-            return Err(SearchError::missing_api_key("tavily", "CLI_WEB_SEARCH_TAVILY_API_KEY"));
+            return Err(SearchError::missing_api_key(
+                "tavily",
+                "CLI_WEB_SEARCH_TAVILY_API_KEY",
+            ));
         }
 
         let request_body = TavilySearchRequest {
@@ -67,7 +70,10 @@ impl SearchProvider for TavilyProvider {
 
         if !status.is_success() {
             let error_text = response.text().await.unwrap_or_default();
-            return Err(SearchError::api("tavily", format!("HTTP {}: {}", status, error_text)));
+            return Err(SearchError::api(
+                "tavily",
+                format!("HTTP {}: {}", status, error_text),
+            ));
         }
 
         let tavily_response: TavilySearchResponse = response.json().await?;

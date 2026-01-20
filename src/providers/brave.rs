@@ -37,7 +37,10 @@ impl SearchProvider for BraveProvider {
 
     async fn search(&self, query: &str, options: &SearchOptions) -> Result<Vec<SearchResult>> {
         if !self.is_configured() {
-            return Err(SearchError::missing_api_key("brave", "CLI_WEB_SEARCH_BRAVE_API_KEY"));
+            return Err(SearchError::missing_api_key(
+                "brave",
+                "CLI_WEB_SEARCH_BRAVE_API_KEY",
+            ));
         }
 
         let safe_search = match options.safe_search {
@@ -87,7 +90,10 @@ impl SearchProvider for BraveProvider {
 
         if !status.is_success() {
             let error_text = response.text().await.unwrap_or_default();
-            return Err(SearchError::api("brave", format!("HTTP {}: {}", status, error_text)));
+            return Err(SearchError::api(
+                "brave",
+                format!("HTTP {}: {}", status, error_text),
+            ));
         }
 
         let brave_response: BraveSearchResponse = response.json().await?;

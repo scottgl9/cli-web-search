@@ -121,7 +121,11 @@ impl SearchProvider for DuckDuckGoProvider {
                         if !sub_topic.first_url.is_empty() {
                             results.push(SearchResult {
                                 title: sub_topic.text.chars().take(100).collect::<String>()
-                                    + if sub_topic.text.len() > 100 { "..." } else { "" },
+                                    + if sub_topic.text.len() > 100 {
+                                        "..."
+                                    } else {
+                                        ""
+                                    },
                                 url: sub_topic.first_url,
                                 snippet: sub_topic.text,
                                 position,
@@ -228,6 +232,7 @@ struct DdgResult {
 }
 
 #[derive(Debug, Deserialize)]
+#[allow(dead_code)]
 struct DdgCategory {
     /// Category name
     #[serde(default, rename = "Name")]

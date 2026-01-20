@@ -50,6 +50,7 @@ pub enum SearchError {
 
     /// Provider not found
     #[error("Unknown provider: {0}. Available providers: brave, google, duckduckgo, tavily")]
+    #[allow(dead_code)]
     UnknownProvider(String),
 
     /// No providers configured

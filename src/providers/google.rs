@@ -39,10 +39,16 @@ impl SearchProvider for GoogleProvider {
 
     async fn search(&self, query: &str, options: &SearchOptions) -> Result<Vec<SearchResult>> {
         if self.api_key.is_empty() {
-            return Err(SearchError::missing_api_key("google", "CLI_WEB_SEARCH_GOOGLE_API_KEY"));
+            return Err(SearchError::missing_api_key(
+                "google",
+                "CLI_WEB_SEARCH_GOOGLE_API_KEY",
+            ));
         }
         if self.cx.is_empty() {
-            return Err(SearchError::missing_api_key("google", "CLI_WEB_SEARCH_GOOGLE_CX"));
+            return Err(SearchError::missing_api_key(
+                "google",
+                "CLI_WEB_SEARCH_GOOGLE_CX",
+            ));
         }
 
         let safe = match options.safe_search {
@@ -99,7 +105,10 @@ impl SearchProvider for GoogleProvider {
 
         if !status.is_success() {
             let error_text = response.text().await.unwrap_or_default();
-            return Err(SearchError::api("google", format!("HTTP {}: {}", status, error_text)));
+            return Err(SearchError::api(
+                "google",
+                format!("HTTP {}: {}", status, error_text),
+            ));
         }
 
         let google_response: GoogleSearchResponse = response.json().await?;
@@ -148,6 +157,7 @@ impl SearchProvider for GoogleProvider {
 // Google CSE API response structures
 
 #[derive(Debug, Deserialize)]
+#[allow(dead_code)]
 struct GoogleSearchResponse {
     items: Option<Vec<GoogleSearchItem>>,
     #[serde(rename = "searchInformation")]
@@ -155,6 +165,7 @@ struct GoogleSearchResponse {
 }
 
 #[derive(Debug, Deserialize)]
+#[allow(dead_code)]
 struct GoogleSearchItem {
     title: String,
     link: String,
@@ -164,6 +175,7 @@ struct GoogleSearchItem {
 }
 
 #[derive(Debug, Deserialize)]
+#[allow(dead_code)]
 struct GoogleSearchInfo {
     #[serde(rename = "totalResults")]
     total_results: Option<String>,

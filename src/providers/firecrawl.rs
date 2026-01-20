@@ -182,6 +182,7 @@ struct FirecrawlSearchRequest {
 }
 
 #[derive(Debug, Deserialize)]
+#[allow(dead_code)]
 struct FirecrawlSearchResponse {
     success: bool,
     data: FirecrawlData,
@@ -194,6 +195,7 @@ struct FirecrawlSearchResponse {
 }
 
 #[derive(Debug, Deserialize)]
+#[allow(dead_code)]
 struct FirecrawlData {
     #[serde(default)]
     web: Option<Vec<FirecrawlWebResult>>,
@@ -204,6 +206,7 @@ struct FirecrawlData {
 }
 
 #[derive(Debug, Deserialize)]
+#[allow(dead_code)]
 struct FirecrawlWebResult {
     #[serde(default)]
     title: Option<String>,
@@ -217,6 +220,7 @@ struct FirecrawlWebResult {
 }
 
 #[derive(Debug, Deserialize)]
+#[allow(dead_code)]
 struct FirecrawlImageResult {
     #[serde(default)]
     title: Option<String>,
@@ -229,6 +233,7 @@ struct FirecrawlImageResult {
 }
 
 #[derive(Debug, Deserialize)]
+#[allow(dead_code)]
 struct FirecrawlNewsResult {
     #[serde(default)]
     title: Option<String>,
@@ -243,6 +248,7 @@ struct FirecrawlNewsResult {
 }
 
 #[derive(Debug, Deserialize)]
+#[allow(dead_code)]
 struct FirecrawlMetadata {
     #[serde(default)]
     title: Option<String>,

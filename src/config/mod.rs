@@ -213,6 +213,7 @@ fn default_cache_max_entries() -> usize {
 
 impl Config {
     /// Get a list of enabled providers
+    #[allow(dead_code)]
     pub fn enabled_providers(&self) -> Vec<String> {
         let mut providers = Vec::new();
 
@@ -251,6 +252,7 @@ impl Config {
     }
 
     /// Get the effective default provider
+    #[allow(dead_code)]
     pub fn effective_default_provider(&self) -> Option<String> {
         // First try explicit default
         if let Some(ref default) = self.default_provider {
@@ -279,43 +281,91 @@ impl Config {
         }
 
         if let Some(ref brave) = self.providers.brave {
-            map.insert("providers.brave.api_key".to_string(), mask_api_key(&brave.api_key));
-            map.insert("providers.brave.enabled".to_string(), brave.enabled.to_string());
+            map.insert(
+                "providers.brave.api_key".to_string(),
+                mask_api_key(&brave.api_key),
+            );
+            map.insert(
+                "providers.brave.enabled".to_string(),
+                brave.enabled.to_string(),
+            );
         }
 
         if let Some(ref google) = self.providers.google {
-            map.insert("providers.google.api_key".to_string(), mask_api_key(&google.api_key));
+            map.insert(
+                "providers.google.api_key".to_string(),
+                mask_api_key(&google.api_key),
+            );
             map.insert("providers.google.cx".to_string(), google.cx.clone());
-            map.insert("providers.google.enabled".to_string(), google.enabled.to_string());
+            map.insert(
+                "providers.google.enabled".to_string(),
+                google.enabled.to_string(),
+            );
         }
 
         if let Some(ref tavily) = self.providers.tavily {
-            map.insert("providers.tavily.api_key".to_string(), mask_api_key(&tavily.api_key));
-            map.insert("providers.tavily.enabled".to_string(), tavily.enabled.to_string());
+            map.insert(
+                "providers.tavily.api_key".to_string(),
+                mask_api_key(&tavily.api_key),
+            );
+            map.insert(
+                "providers.tavily.enabled".to_string(),
+                tavily.enabled.to_string(),
+            );
         }
 
         if let Some(ref ddg) = self.providers.duckduckgo {
-            map.insert("providers.duckduckgo.enabled".to_string(), ddg.enabled.to_string());
+            map.insert(
+                "providers.duckduckgo.enabled".to_string(),
+                ddg.enabled.to_string(),
+            );
         }
 
         if let Some(ref serper) = self.providers.serper {
-            map.insert("providers.serper.api_key".to_string(), mask_api_key(&serper.api_key));
-            map.insert("providers.serper.enabled".to_string(), serper.enabled.to_string());
+            map.insert(
+                "providers.serper.api_key".to_string(),
+                mask_api_key(&serper.api_key),
+            );
+            map.insert(
+                "providers.serper.enabled".to_string(),
+                serper.enabled.to_string(),
+            );
         }
 
         if let Some(ref firecrawl) = self.providers.firecrawl {
-            map.insert("providers.firecrawl.api_key".to_string(), mask_api_key(&firecrawl.api_key));
-            map.insert("providers.firecrawl.enabled".to_string(), firecrawl.enabled.to_string());
+            map.insert(
+                "providers.firecrawl.api_key".to_string(),
+                mask_api_key(&firecrawl.api_key),
+            );
+            map.insert(
+                "providers.firecrawl.enabled".to_string(),
+                firecrawl.enabled.to_string(),
+            );
         }
 
-        map.insert("defaults.num_results".to_string(), self.defaults.num_results.to_string());
-        map.insert("defaults.safe_search".to_string(), self.defaults.safe_search.clone());
-        map.insert("defaults.timeout".to_string(), self.defaults.timeout.to_string());
+        map.insert(
+            "defaults.num_results".to_string(),
+            self.defaults.num_results.to_string(),
+        );
+        map.insert(
+            "defaults.safe_search".to_string(),
+            self.defaults.safe_search.clone(),
+        );
+        map.insert(
+            "defaults.timeout".to_string(),
+            self.defaults.timeout.to_string(),
+        );
         map.insert("defaults.format".to_string(), self.defaults.format.clone());
 
         map.insert("cache.enabled".to_string(), self.cache.enabled.to_string());
-        map.insert("cache.ttl_seconds".to_string(), self.cache.ttl_seconds.to_string());
-        map.insert("cache.max_entries".to_string(), self.cache.max_entries.to_string());
+        map.insert(
+            "cache.ttl_seconds".to_string(),
+            self.cache.ttl_seconds.to_string(),
+        );
+        map.insert(
+            "cache.max_entries".to_string(),
+            self.cache.max_entries.to_string(),
+        );
 
         map
     }
@@ -453,19 +503,19 @@ mod tests {
         });
 
         let map = config.to_flat_map();
-        
+
         // Check that API key is masked
         let brave_key = map.get("providers.brave.api_key").unwrap();
         assert!(brave_key.contains("..."));
         assert!(!brave_key.contains("test-api-key-12345"));
-        
+
         // Check enabled
         assert_eq!(map.get("providers.brave.enabled").unwrap(), "true");
-        
+
         // Check defaults
         assert_eq!(map.get("defaults.num_results").unwrap(), "10");
         assert_eq!(map.get("defaults.safe_search").unwrap(), "moderate");
-        
+
         // Check cache
         assert_eq!(map.get("cache.enabled").unwrap(), "true");
     }
@@ -509,12 +559,14 @@ cache:
 
     #[test]
     fn test_fallback_order() {
-        let mut config = Config::default();
-        config.fallback_order = vec![
-            "brave".to_string(),
-            "google".to_string(),
-            "tavily".to_string(),
-        ];
+        let config = Config {
+            fallback_order: vec![
+                "brave".to_string(),
+                "google".to_string(),
+                "tavily".to_string(),
+            ],
+            ..Default::default()
+        };
 
         assert_eq!(config.fallback_order.len(), 3);
         assert_eq!(config.fallback_order[0], "brave");

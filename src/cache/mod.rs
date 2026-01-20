@@ -226,14 +226,14 @@ mod tests {
     #[test]
     fn test_cache_clear() {
         let cache = SearchCache::new(test_config());
-        
+
         cache.set("query1", "brave", vec![create_test_result("Result1")]);
         cache.set("query2", "google", vec![create_test_result("Result2")]);
-        
+
         assert_eq!(cache.stats().entries, 2);
-        
+
         cache.clear().unwrap();
-        
+
         assert_eq!(cache.stats().entries, 0);
         assert!(cache.get("query1", Some("brave")).is_none());
         assert!(cache.get("query2", Some("google")).is_none());
@@ -242,16 +242,24 @@ mod tests {
     #[test]
     fn test_cache_different_providers() {
         let cache = SearchCache::new(test_config());
-        
-        cache.set("same query", "brave", vec![create_test_result("Brave Result")]);
-        cache.set("same query", "google", vec![create_test_result("Google Result")]);
-        
+
+        cache.set(
+            "same query",
+            "brave",
+            vec![create_test_result("Brave Result")],
+        );
+        cache.set(
+            "same query",
+            "google",
+            vec![create_test_result("Google Result")],
+        );
+
         let brave_cached = cache.get("same query", Some("brave"));
         let google_cached = cache.get("same query", Some("google"));
-        
+
         assert!(brave_cached.is_some());
         assert!(google_cached.is_some());
-        
+
         assert_eq!(brave_cached.unwrap().0[0].title, "Brave Result");
         assert_eq!(google_cached.unwrap().0[0].title, "Google Result");
     }
@@ -259,13 +267,13 @@ mod tests {
     #[test]
     fn test_cache_case_insensitive_query() {
         let cache = SearchCache::new(test_config());
-        
+
         cache.set("Test Query", "brave", vec![create_test_result("Result")]);
-        
+
         // Should find with different case
         let cached = cache.get("test query", Some("brave"));
         assert!(cached.is_some());
-        
+
         let cached = cache.get("TEST QUERY", Some("brave"));
         assert!(cached.is_some());
     }
@@ -273,9 +281,9 @@ mod tests {
     #[test]
     fn test_cache_miss_wrong_provider() {
         let cache = SearchCache::new(test_config());
-        
+
         cache.set("query", "brave", vec![create_test_result("Result")]);
-        
+
         // Should miss with different provider
         let cached = cache.get("query", Some("google"));
         assert!(cached.is_none());
@@ -284,15 +292,15 @@ mod tests {
     #[test]
     fn test_cache_stats_after_operations() {
         let cache = SearchCache::new(test_config());
-        
+
         assert_eq!(cache.stats().entries, 0);
-        
+
         cache.set("query1", "brave", vec![create_test_result("Result1")]);
         assert_eq!(cache.stats().entries, 1);
-        
+
         cache.set("query2", "brave", vec![create_test_result("Result2")]);
         assert_eq!(cache.stats().entries, 2);
-        
+
         cache.clear().unwrap();
         assert_eq!(cache.stats().entries, 0);
     }
@@ -302,16 +310,16 @@ mod tests {
         let mut config = test_config();
         config.max_entries = 3;
         let cache = SearchCache::new(config);
-        
+
         cache.set("query1", "brave", vec![create_test_result("Result1")]);
         cache.set("query2", "brave", vec![create_test_result("Result2")]);
         cache.set("query3", "brave", vec![create_test_result("Result3")]);
-        
+
         assert_eq!(cache.stats().entries, 3);
-        
+
         // Adding a 4th entry should trigger eviction
         cache.set("query4", "brave", vec![create_test_result("Result4")]);
-        
+
         // Should have at most max_entries
         assert!(cache.stats().entries <= 3);
     }
@@ -320,10 +328,10 @@ mod tests {
     fn test_cache_stats_display() {
         let cache = SearchCache::new(test_config());
         cache.set("query", "brave", vec![create_test_result("Result")]);
-        
+
         let stats = cache.stats();
         let display = format!("{}", stats);
-        
+
         assert!(display.contains("Cache Statistics:"));
         assert!(display.contains("Enabled: true"));
         assert!(display.contains("Entries: 1"));
@@ -333,15 +341,15 @@ mod tests {
     #[test]
     fn test_cache_multiple_results() {
         let cache = SearchCache::new(test_config());
-        
+
         let results = vec![
             create_test_result("Result1"),
             create_test_result("Result2"),
             create_test_result("Result3"),
         ];
-        
+
         cache.set("query", "brave", results);
-        
+
         let cached = cache.get("query", Some("brave")).unwrap();
         assert_eq!(cached.0.len(), 3);
         assert_eq!(cached.0[0].title, "Result1");

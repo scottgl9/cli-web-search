@@ -61,10 +61,7 @@ impl OutputFormatter for TextFormatter {
 /// Truncate a snippet to a maximum length, adding ellipsis if needed
 fn truncate_snippet(text: &str, max_len: usize) -> String {
     // Clean up whitespace
-    let cleaned: String = text
-        .split_whitespace()
-        .collect::<Vec<_>>()
-        .join(" ");
+    let cleaned: String = text.split_whitespace().collect::<Vec<_>>().join(" ");
 
     if cleaned.len() <= max_len {
         cleaned
@@ -140,25 +137,16 @@ mod tests {
 
     #[test]
     fn test_text_formatter_default() {
-        let formatter = TextFormatter::default();
-        let response = SearchResponse::new(
-            "test".to_string(),
-            "brave".to_string(),
-            vec![],
-            100,
-        );
+        let formatter = TextFormatter;
+        let response = SearchResponse::new("test".to_string(), "brave".to_string(), vec![], 100);
         let output = formatter.format(&response);
         assert!(output.contains("Search:"));
     }
 
     #[test]
     fn test_text_empty_results() {
-        let response = SearchResponse::new(
-            "no results".to_string(),
-            "google".to_string(),
-            vec![],
-            50,
-        );
+        let response =
+            SearchResponse::new("no results".to_string(), "google".to_string(), vec![], 50);
 
         let formatter = TextFormatter::new();
         let output = formatter.format(&response);
@@ -190,12 +178,7 @@ mod tests {
 
     #[test]
     fn test_text_header_separator() {
-        let response = SearchResponse::new(
-            "test".to_string(),
-            "brave".to_string(),
-            vec![],
-            100,
-        );
+        let response = SearchResponse::new("test".to_string(), "brave".to_string(), vec![], 100);
 
         let formatter = TextFormatter::new();
         let output = formatter.format(&response);
@@ -208,7 +191,7 @@ mod tests {
     fn test_truncate_whitespace_cleanup() {
         let messy_text = "This   has   extra   spaces   and\n\nnewlines";
         let result = truncate_snippet(messy_text, 100);
-        
+
         // Should collapse multiple whitespace
         assert!(!result.contains("   "));
         assert!(!result.contains('\n'));
@@ -218,19 +201,14 @@ mod tests {
     fn test_truncate_exact_length() {
         let text = "Exactly fifty characters long text for testing!!";
         let result = truncate_snippet(text, 48);
-        
+
         // Should fit exactly without truncation
         assert_eq!(result, text);
     }
 
     #[test]
     fn test_text_search_time() {
-        let response = SearchResponse::new(
-            "test".to_string(),
-            "brave".to_string(),
-            vec![],
-            12345,
-        );
+        let response = SearchResponse::new("test".to_string(), "brave".to_string(), vec![], 12345);
 
         let formatter = TextFormatter::new();
         let output = formatter.format(&response);

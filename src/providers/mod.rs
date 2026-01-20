@@ -179,9 +179,7 @@ impl ProviderRegistry {
 
         // Then add any remaining configured providers
         for provider in &self.providers {
-            if provider.is_configured()
-                && !result.iter().any(|p| p.name() == provider.name())
-            {
+            if provider.is_configured() && !result.iter().any(|p| p.name() == provider.name()) {
                 result.push(provider.as_ref());
             }
         }
@@ -259,9 +257,13 @@ impl ProviderRegistry {
 
                     // Calculate backoff delay with exponential increase
                     let delay_ms = BASE_DELAY_MS * 2u64.pow(attempt);
-                    
+
                     // Check if we got a Retry-After header for rate limiting
-                    let delay = if let SearchError::RateLimited { retry_after: Some(secs), .. } = &e {
+                    let delay = if let SearchError::RateLimited {
+                        retry_after: Some(secs),
+                        ..
+                    } = &e
+                    {
                         Duration::from_secs(*secs)
                     } else {
                         Duration::from_millis(delay_ms)
@@ -281,11 +283,9 @@ impl ProviderRegistry {
             }
         }
 
-        Err(last_error.unwrap_or_else(|| {
-            SearchError::Api {
-                provider: provider.name().to_string(),
-                message: "Unknown error after retries".to_string(),
-            }
+        Err(last_error.unwrap_or_else(|| SearchError::Api {
+            provider: provider.name().to_string(),
+            message: "Unknown error after retries".to_string(),
         }))
     }
 
@@ -359,7 +359,9 @@ pub fn build_registry(config: &crate::config::Config) -> ProviderRegistry {
     // Register Firecrawl provider if configured
     if let Some(ref firecrawl_config) = config.providers.firecrawl {
         if firecrawl_config.enabled {
-            registry.register(Box::new(FirecrawlProvider::new(firecrawl_config.api_key.clone())));
+            registry.register(Box::new(FirecrawlProvider::new(
+                firecrawl_config.api_key.clone(),
+            )));
         }
     }
 
@@ -412,15 +414,13 @@ mod tests {
 
     #[test]
     fn test_search_options_with_date_range() {
-        let options = SearchOptions::new()
-            .with_date_range(Some(DateRange::Week));
+        let options = SearchOptions::new().with_date_range(Some(DateRange::Week));
         assert_eq!(options.date_range, Some(DateRange::Week));
     }
 
     #[test]
     fn test_search_options_with_timeout() {
-        let options = SearchOptions::new()
-            .with_timeout(Duration::from_secs(60));
+        let options = SearchOptions::new().with_timeout(Duration::from_secs(60));
         assert_eq!(options.timeout, Duration::from_secs(60));
     }
 
@@ -442,11 +442,11 @@ mod tests {
     fn test_provider_registry_get() {
         let mut registry = ProviderRegistry::new();
         registry.register(Box::new(BraveProvider::new("test-key".to_string())));
-        
+
         let provider = registry.get("brave");
         assert!(provider.is_some());
         assert_eq!(provider.unwrap().name(), "brave");
-        
+
         let missing = registry.get("nonexistent");
         assert!(missing.is_none());
     }
@@ -456,7 +456,7 @@ mod tests {
         let mut registry = ProviderRegistry::new();
         registry.register(Box::new(BraveProvider::new("test-key".to_string())));
         registry.register(Box::new(BraveProvider::new(String::new()))); // Not configured
-        
+
         let configured = registry.configured_providers();
         assert_eq!(configured.len(), 1);
     }
@@ -466,13 +466,13 @@ mod tests {
         let mut registry = ProviderRegistry::new();
         registry.register(Box::new(BraveProvider::new("test-key".to_string())));
         registry.register(Box::new(TavilyProvider::new(String::new())));
-        
+
         let list = registry.list_providers();
         assert_eq!(list.len(), 2);
-        
+
         let brave_status = list.iter().find(|s| s.name == "brave").unwrap();
         assert!(brave_status.configured);
-        
+
         let tavily_status = list.iter().find(|s| s.name == "tavily").unwrap();
         assert!(!tavily_status.configured);
     }
@@ -482,11 +482,18 @@ mod tests {
         let mut registry = ProviderRegistry::new();
         registry.register(Box::new(BraveProvider::new("brave-key".to_string())));
         registry.register(Box::new(TavilyProvider::new("tavily-key".to_string())));
-        registry.register(Box::new(GoogleProvider::new("google-key".to_string(), "cx".to_string())));
-        
+        registry.register(Box::new(GoogleProvider::new(
+            "google-key".to_string(),
+            "cx".to_string(),
+        )));
+
         // Set fallback order to put tavily first
-        registry.set_fallback_order(vec!["tavily".to_string(), "brave".to_string(), "google".to_string()]);
-        
+        registry.set_fallback_order(vec![
+            "tavily".to_string(),
+            "brave".to_string(),
+            "google".to_string(),
+        ]);
+
         let providers = registry.providers_in_order();
         assert_eq!(providers.len(), 3);
         assert_eq!(providers[0].name(), "tavily");
@@ -499,9 +506,9 @@ mod tests {
         let mut registry = ProviderRegistry::new();
         registry.register(Box::new(BraveProvider::new("brave-key".to_string())));
         registry.register(Box::new(TavilyProvider::new(String::new()))); // Not configured
-        
+
         registry.set_fallback_order(vec!["tavily".to_string(), "brave".to_string()]);
-        
+
         let providers = registry.providers_in_order();
         // Only brave should be returned since tavily is not configured
         assert_eq!(providers.len(), 1);
@@ -516,7 +523,7 @@ mod tests {
             "snippet": "Test snippet",
             "position": 1
         }"#;
-        
+
         let result: SearchResult = serde_json::from_str(json).unwrap();
         assert_eq!(result.title, "Test Title");
         assert_eq!(result.url, "https://example.com");
@@ -536,7 +543,7 @@ mod tests {
             published_date: Some("2024-01-01".to_string()),
             source: Some("example.com".to_string()),
         };
-        
+
         let json = serde_json::to_string(&result).unwrap();
         assert!(json.contains("published_date"));
         assert!(json.contains("2024-01-01"));

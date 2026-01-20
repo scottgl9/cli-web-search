@@ -137,14 +137,14 @@ Task tracking for the cli-web-search project. Check items off as completed.
 - [ ] Test on macOS aarch64
 
 ### CI/CD & Releases
-- [ ] Set up GitHub Actions workflow
-- [ ] Add automated testing
-- [ ] Add linting (clippy)
-- [ ] Add formatting check (rustfmt)
-- [ ] Configure release builds
-- [ ] Create release binaries for all platforms
-- [ ] Set up GitHub Releases automation
-- [ ] Add checksums for binaries
+- [x] Set up GitHub Actions workflow
+- [x] Add automated testing
+- [x] Add linting (clippy)
+- [x] Add formatting check (rustfmt)
+- [x] Configure release builds
+- [x] Create release binaries for all platforms
+- [x] Set up GitHub Releases automation
+- [x] Add checksums for binaries
 
 ### Final Polish
 - [ ] Performance optimization

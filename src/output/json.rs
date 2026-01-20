@@ -29,13 +29,11 @@ impl Default for JsonFormatter {
 impl OutputFormatter for JsonFormatter {
     fn format(&self, response: &SearchResponse) -> String {
         if self.pretty {
-            serde_json::to_string_pretty(response).unwrap_or_else(|e| {
-                format!("{{\"error\": \"Failed to serialize: {}\"}}", e)
-            })
+            serde_json::to_string_pretty(response)
+                .unwrap_or_else(|e| format!("{{\"error\": \"Failed to serialize: {}\"}}", e))
         } else {
-            serde_json::to_string(response).unwrap_or_else(|e| {
-                format!("{{\"error\": \"Failed to serialize: {}\"}}", e)
-            })
+            serde_json::to_string(response)
+                .unwrap_or_else(|e| format!("{{\"error\": \"Failed to serialize: {}\"}}", e))
         }
     }
 }
@@ -75,12 +73,7 @@ mod tests {
 
     #[test]
     fn test_compact_json() {
-        let response = SearchResponse::new(
-            "test".to_string(),
-            "google".to_string(),
-            vec![],
-            50,
-        );
+        let response = SearchResponse::new("test".to_string(), "google".to_string(), vec![], 50);
 
         let formatter = JsonFormatter::compact();
         let output = formatter.format(&response);
@@ -92,12 +85,7 @@ mod tests {
     #[test]
     fn test_json_formatter_default() {
         let formatter = JsonFormatter::default();
-        let response = SearchResponse::new(
-            "test".to_string(),
-            "brave".to_string(),
-            vec![],
-            100,
-        );
+        let response = SearchResponse::new("test".to_string(), "brave".to_string(), vec![], 100);
         let output = formatter.format(&response);
         // Default should be pretty printed
         assert!(output.contains('\n'));
@@ -143,12 +131,7 @@ mod tests {
 
     #[test]
     fn test_json_search_time() {
-        let response = SearchResponse::new(
-            "test".to_string(),
-            "brave".to_string(),
-            vec![],
-            12345,
-        );
+        let response = SearchResponse::new("test".to_string(), "brave".to_string(), vec![], 12345);
 
         let formatter = JsonFormatter::new();
         let output = formatter.format(&response);

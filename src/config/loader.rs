@@ -22,6 +22,7 @@ pub fn config_path() -> Result<PathBuf> {
 }
 
 /// Get the cache directory path
+#[allow(dead_code)]
 pub fn cache_dir() -> Result<PathBuf> {
     ProjectDirs::from("com", "cli-web-search", "cli-web-search")
         .map(|dirs| dirs.cache_dir().to_path_buf())
@@ -31,24 +32,24 @@ pub fn cache_dir() -> Result<PathBuf> {
 /// Load configuration from file and environment variables
 pub fn load_config() -> Result<Config> {
     let mut config = load_config_file().unwrap_or_default();
-    
+
     // Override with environment variables
     apply_env_overrides(&mut config);
-    
+
     Ok(config)
 }
 
 /// Load configuration from file only
 fn load_config_file() -> Result<Config> {
     let path = config_path()?;
-    
+
     if !path.exists() {
         return Ok(Config::default());
     }
-    
+
     let content = fs::read_to_string(&path)?;
     let config: Config = serde_yaml::from_str(&content)?;
-    
+
     Ok(config)
 }
 
@@ -65,11 +66,11 @@ fn apply_env_overrides(config: &mut Config) {
             brave.api_key = api_key;
         }
     }
-    
+
     // Google API key and CX
     let google_api_key = std::env::var(format!("{}_GOOGLE_API_KEY", ENV_PREFIX)).ok();
     let google_cx = std::env::var(format!("{}_GOOGLE_CX", ENV_PREFIX)).ok();
-    
+
     if let (Some(api_key), Some(cx)) = (google_api_key.clone(), google_cx.clone()) {
         if config.providers.google.is_none() {
             config.providers.google = Some(GoogleConfig {
@@ -87,7 +88,7 @@ fn apply_env_overrides(config: &mut Config) {
             google.cx = cx;
         }
     }
-    
+
     // Tavily API key
     if let Ok(api_key) = std::env::var(format!("{}_TAVILY_API_KEY", ENV_PREFIX)) {
         if config.providers.tavily.is_none() {
@@ -99,7 +100,7 @@ fn apply_env_overrides(config: &mut Config) {
             tavily.api_key = api_key;
         }
     }
-    
+
     // DuckDuckGo enabled (no API key needed)
     if let Ok(enabled) = std::env::var(format!("{}_DUCKDUCKGO_ENABLED", ENV_PREFIX)) {
         let is_enabled = enabled.parse().unwrap_or(false);
@@ -111,7 +112,7 @@ fn apply_env_overrides(config: &mut Config) {
             ddg.enabled = is_enabled;
         }
     }
-    
+
     // Serper API key
     if let Ok(api_key) = std::env::var(format!("{}_SERPER_API_KEY", ENV_PREFIX)) {
         if config.providers.serper.is_none() {
@@ -123,7 +124,7 @@ fn apply_env_overrides(config: &mut Config) {
             serper.api_key = api_key;
         }
     }
-    
+
     // Firecrawl API key
     if let Ok(api_key) = std::env::var(format!("{}_FIRECRAWL_API_KEY", ENV_PREFIX)) {
         if config.providers.firecrawl.is_none() {
@@ -135,7 +136,7 @@ fn apply_env_overrides(config: &mut Config) {
             firecrawl.api_key = api_key;
         }
     }
-    
+
     // Default provider override
     if let Ok(provider) = std::env::var(format!("{}_DEFAULT_PROVIDER", ENV_PREFIX)) {
         config.default_provider = Some(provider);
@@ -145,15 +146,15 @@ fn apply_env_overrides(config: &mut Config) {
 /// Save configuration to file
 pub fn save_config(config: &Config) -> Result<()> {
     let path = config_path()?;
-    
+
     // Ensure directory exists
     if let Some(parent) = path.parent() {
         fs::create_dir_all(parent)?;
     }
-    
+
     let content = serde_yaml::to_string(config)?;
     fs::write(&path, content)?;
-    
+
     // Set restrictive permissions on Unix
     #[cfg(unix)]
     {
@@ -162,7 +163,7 @@ pub fn save_config(config: &Config) -> Result<()> {
         perms.set_mode(0o600);
         fs::set_permissions(&path, perms)?;
     }
-    
+
     Ok(())
 }
 
@@ -178,9 +179,9 @@ pub fn init_config_interactive() -> Result<Config> {
 /// Set a specific configuration value by key path
 pub fn set_config_value(key: &str, value: &str) -> Result<()> {
     let mut config = load_config()?;
-    
+
     let parts: Vec<&str> = key.split('.').collect();
-    
+
     match parts.as_slice() {
         ["default_provider"] => {
             config.default_provider = Some(value.to_string());
@@ -303,10 +304,13 @@ pub fn set_config_value(key: &str, value: &str) -> Result<()> {
             config.cache.max_entries = value.parse().unwrap_or(1000);
         }
         _ => {
-            return Err(SearchError::Config(format!("Unknown configuration key: {}", key)));
+            return Err(SearchError::Config(format!(
+                "Unknown configuration key: {}",
+                key
+            )));
         }
     }
-    
+
     save_config(&config)?;
     Ok(())
 }
@@ -321,14 +325,13 @@ pub fn get_config_value(key: &str) -> Result<Option<String>> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use tempfile::TempDir;
-    
+
     #[test]
     fn test_config_path() {
         let path = config_path();
         assert!(path.is_ok());
     }
-    
+
     #[test]
     fn test_default_config_loading() {
         let config = Config::default();

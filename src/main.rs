@@ -9,7 +9,7 @@ mod providers;
 
 use cache::SearchCache;
 use cli::{CacheCommands, Cli, Commands, ConfigCommands};
-use config::{config_path, load_config, set_config_value, get_config_value};
+use config::{config_path, get_config_value, load_config, set_config_value};
 use error::{Result, SearchError};
 use output::{get_formatter, SearchResponse};
 use providers::{build_registry, SearchOptions};
@@ -64,7 +64,8 @@ async fn run() -> Result<()> {
     // Check cache first (unless disabled)
     let provider_name = cli.provider.as_ref().map(|p| p.to_string());
     if !cli.no_cache {
-        if let Some((cached_results, cached_provider)) = cache.get(&query, provider_name.as_deref()) {
+        if let Some((cached_results, cached_provider)) = cache.get(&query, provider_name.as_deref())
+        {
             if !cli.quiet {
                 tracing::info!("Using cached results from {}", cached_provider);
             }
@@ -101,12 +102,7 @@ async fn run() -> Result<()> {
     }
 
     // Format and output results
-    let response = SearchResponse::new(
-        query,
-        provider_used.to_string(),
-        results,
-        search_time_ms,
-    );
+    let response = SearchResponse::new(query, provider_used.to_string(), results, search_time_ms);
 
     output_results(&cli, &response)?;
 
@@ -212,7 +208,14 @@ async fn handle_providers_command() -> Result<()> {
     }
 
     // Also show providers that could be configured but aren't registered
-    let all_providers = ["brave", "google", "duckduckgo", "tavily", "serper", "firecrawl"];
+    let all_providers = [
+        "brave",
+        "google",
+        "duckduckgo",
+        "tavily",
+        "serper",
+        "firecrawl",
+    ];
     let registered: Vec<_> = statuses.iter().map(|s| s.name.as_str()).collect();
 
     let unregistered: Vec<_> = all_providers
@@ -258,8 +261,7 @@ fn setup_logging(verbosity: u8) {
         _ => "trace",
     };
 
-    let filter = EnvFilter::try_from_default_env()
-        .unwrap_or_else(|_| EnvFilter::new(filter));
+    let filter = EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new(filter));
 
     tracing_subscriber::fmt()
         .with_env_filter(filter)
