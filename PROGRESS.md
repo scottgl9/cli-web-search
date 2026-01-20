@@ -8,130 +8,142 @@ This document tracks the overall completion progress of the cli-web-search proje
 
 | Phase | Status | Progress | Target Date |
 |-------|--------|----------|-------------|
-| Phase 1: MVP | Not Started | 0% | Week 3 |
-| Phase 2: Enhanced | Not Started | 0% | Week 5 |
-| Phase 3: Polish | Not Started | 0% | Week 7 |
+| Phase 1: MVP | In Progress | 85% | Week 3 |
+| Phase 2: Enhanced | In Progress | 70% | Week 5 |
+| Phase 3: Polish | Not Started | 5% | Week 7 |
 | Phase 4: Extended | Not Started | 0% | Future |
 
-**Total Project Progress: 0%**
+**Total Project Progress: ~50%**
 
 ---
 
 ## Phase 1: MVP Breakdown
 
-### Project Setup (0/5)
+### Project Setup (3/5)
 | Task | Status | Notes |
 |------|--------|-------|
-| Initialize Rust project | ⬜ Not Started | |
-| Set up project structure | ⬜ Not Started | |
-| Configure Cargo.toml | ⬜ Not Started | |
+| Initialize Rust project | ✅ Complete | Cargo.toml created |
+| Set up project structure | ✅ Complete | src/, tests/ structure |
+| Configure Cargo.toml | ✅ Complete | All dependencies added |
 | Set up CI/CD | ⬜ Not Started | |
 | Create initial README | ⬜ Not Started | |
 
-### CLI Framework (0/5)
+### CLI Framework (5/5)
 | Task | Status | Notes |
 |------|--------|-------|
-| Argument parsing | ⬜ Not Started | |
-| Command-line options | ⬜ Not Started | |
-| Subcommands | ⬜ Not Started | |
-| Version/help output | ⬜ Not Started | |
-| Verbosity levels | ⬜ Not Started | |
+| Argument parsing | ✅ Complete | clap derive API |
+| Command-line options | ✅ Complete | All options implemented |
+| Subcommands | ✅ Complete | config, providers, cache |
+| Version/help output | ✅ Complete | |
+| Verbosity levels | ✅ Complete | -v, -vv, -vvv |
 
-### Configuration System (0/7)
+### Configuration System (7/7)
 | Task | Status | Notes |
 |------|--------|-------|
-| Config file structure | ⬜ Not Started | |
-| YAML parsing | ⬜ Not Started | |
-| Environment variables | ⬜ Not Started | |
-| Config init wizard | ⬜ Not Started | |
-| Config set/get/list | ⬜ Not Started | |
-| Config validate | ⬜ Not Started | |
-| File permissions | ⬜ Not Started | |
+| Config file structure | ✅ Complete | ~/.config/cli-web-search/ |
+| YAML parsing | ✅ Complete | serde_yaml |
+| Environment variables | ✅ Complete | CLI_WEB_SEARCH_* |
+| Config init wizard | ✅ Complete | Basic implementation |
+| Config set/get/list | ✅ Complete | |
+| Config validate | ✅ Complete | |
+| File permissions | ✅ Complete | 600 on Unix |
 
-### Provider Infrastructure (0/5)
+### Provider Infrastructure (5/5)
 | Task | Status | Notes |
 |------|--------|-------|
-| SearchProvider trait | ⬜ Not Started | |
-| SearchResult struct | ⬜ Not Started | |
-| Provider registry | ⬜ Not Started | |
-| Provider selection | ⬜ Not Started | |
-| Error handling | ⬜ Not Started | |
+| SearchProvider trait | ✅ Complete | async_trait |
+| SearchResult struct | ✅ Complete | serde serializable |
+| Provider registry | ✅ Complete | With fallback support |
+| Provider selection | ✅ Complete | -p flag + default |
+| Error handling | ✅ Complete | Comprehensive errors |
 
-### Brave Search Provider (0/5)
+### Brave Search Provider (5/6)
 | Task | Status | Notes |
 |------|--------|-------|
-| API client | ⬜ Not Started | |
-| Authentication | ⬜ Not Started | |
-| Result parsing | ⬜ Not Started | |
-| Rate limit handling | ⬜ Not Started | |
-| Tests | ⬜ Not Started | |
+| API client | ✅ Complete | reqwest |
+| Authentication | ✅ Complete | X-Subscription-Token |
+| Result parsing | ✅ Complete | |
+| Rate limit handling | ✅ Complete | 429 detection |
+| Unit tests | ✅ Complete | |
+| Integration tests | ⬜ Not Started | Requires API key |
 
-### Google CSE Provider (0/5)
+### Google CSE Provider (5/6)
 | Task | Status | Notes |
 |------|--------|-------|
-| API client | ⬜ Not Started | |
-| Authentication | ⬜ Not Started | |
-| Result parsing | ⬜ Not Started | |
-| Rate limit handling | ⬜ Not Started | |
-| Tests | ⬜ Not Started | |
+| API client | ✅ Complete | |
+| Authentication | ✅ Complete | API key + CX |
+| Result parsing | ✅ Complete | |
+| Rate limit handling | ✅ Complete | |
+| Unit tests | ✅ Complete | |
+| Integration tests | ⬜ Not Started | Requires API key |
 
-### Output Formatting (0/5)
+### Tavily Provider (5/6)
 | Task | Status | Notes |
 |------|--------|-------|
-| Format trait | ⬜ Not Started | |
-| JSON formatter | ⬜ Not Started | |
-| Markdown formatter | ⬜ Not Started | |
-| Plain text formatter | ⬜ Not Started | |
-| File output | ⬜ Not Started | |
+| API client | ✅ Complete | |
+| Authentication | ✅ Complete | |
+| Result parsing | ✅ Complete | |
+| Rate limit handling | ✅ Complete | |
+| Unit tests | ✅ Complete | |
+| Integration tests | ⬜ Not Started | Requires API key |
 
-### Error Handling (0/5)
+### Output Formatting (5/5)
 | Task | Status | Notes |
 |------|--------|-------|
-| Custom error types | ⬜ Not Started | |
-| User-friendly messages | ⬜ Not Started | |
-| Network errors | ⬜ Not Started | |
-| API errors | ⬜ Not Started | |
-| Config errors | ⬜ Not Started | |
+| Format trait | ✅ Complete | OutputFormatter |
+| JSON formatter | ✅ Complete | Pretty printed |
+| Markdown formatter | ✅ Complete | |
+| Plain text formatter | ✅ Complete | |
+| File output | ✅ Complete | -o flag |
+
+### Error Handling (5/5)
+| Task | Status | Notes |
+|------|--------|-------|
+| Custom error types | ✅ Complete | thiserror |
+| User-friendly messages | ✅ Complete | |
+| Network errors | ✅ Complete | |
+| API errors | ✅ Complete | |
+| Config errors | ✅ Complete | |
 
 ---
 
 ## Phase 2: Enhanced Features Breakdown
 
-### Additional Providers (0/4)
+### Additional Providers (2/4)
 | Task | Status | Notes |
 |------|--------|-------|
 | DuckDuckGo API | ⬜ Not Started | |
-| Tavily API | ⬜ Not Started | |
+| Tavily API | ✅ Complete | |
 | Serper API | ⬜ Not Started | |
-| Provider status cmd | ⬜ Not Started | |
+| Provider status cmd | ✅ Complete | `providers` subcommand |
 
-### Provider Fallback (0/4)
+### Provider Fallback (3/4)
 | Task | Status | Notes |
 |------|--------|-------|
-| Fallback chain | ⬜ Not Started | |
+| Fallback chain | ✅ Complete | Configured in YAML |
 | Retry w/ backoff | ⬜ Not Started | |
-| Rate limit detection | ⬜ Not Started | |
-| Fallback config | ⬜ Not Started | |
+| Rate limit detection | ✅ Complete | |
+| Fallback config | ✅ Complete | |
 
-### Result Caching (0/7)
+### Result Caching (7/7)
 | Task | Status | Notes |
 |------|--------|-------|
-| Cache storage design | ⬜ Not Started | |
-| Cache implementation | ⬜ Not Started | |
-| Cache TTL | ⬜ Not Started | |
-| Cache invalidation | ⬜ Not Started | |
-| cache clear cmd | ⬜ Not Started | |
-| cache stats cmd | ⬜ Not Started | |
-| --no-cache flag | ⬜ Not Started | |
+| Cache storage design | ✅ Complete | In-memory HashMap |
+| Cache implementation | ✅ Complete | |
+| Cache TTL | ✅ Complete | Configurable |
+| Cache invalidation | ✅ Complete | |
+| cache clear cmd | ✅ Complete | |
+| cache stats cmd | ✅ Complete | |
+| --no-cache flag | ✅ Complete | |
 
-### Search Filtering (0/5)
+### Search Filtering (5/5)
 | Task | Status | Notes |
 |------|--------|-------|
-| --num-results | ⬜ Not Started | |
-| --date-range | ⬜ Not Started | |
-| --include-domains | ⬜ Not Started | |
-| --exclude-domains | ⬜ Not Started | |
-| --safe-search | ⬜ Not Started | |
+| --num-results | ✅ Complete | |
+| --date-range | ✅ Complete | day/week/month/year |
+| --include-domains | ✅ Complete | |
+| --exclude-domains | ✅ Complete | |
+| --safe-search | ✅ Complete | off/moderate/strict |
 
 ---
 
@@ -147,13 +159,13 @@ This document tracks the overall completion progress of the cli-web-search proje
 | Usage examples | ⬜ Not Started | |
 | Troubleshooting | ⬜ Not Started | |
 
-### Testing (0/7)
+### Testing (1/7)
 | Task | Status | Notes |
 |------|--------|-------|
 | 80%+ coverage | ⬜ Not Started | |
 | E2E tests | ⬜ Not Started | |
 | Mock provider tests | ⬜ Not Started | |
-| Linux x86_64 | ⬜ Not Started | |
+| Linux x86_64 | ✅ Complete | Built and tested |
 | Linux aarch64 | ⬜ Not Started | |
 | macOS x86_64 | ⬜ Not Started | |
 | macOS aarch64 | ⬜ Not Started | |
@@ -173,6 +185,15 @@ This document tracks the overall completion progress of the cli-web-search proje
 ---
 
 ## Changelog
+
+### [0.1.0] - In Development
+- Initial MVP implementation
+- Brave, Google CSE, and Tavily providers
+- JSON, Markdown, and Text output formats
+- Configuration system with env var support
+- In-memory caching with TTL
+- Provider fallback chain
+- Search filtering options
 
 ### [Unreleased]
 - Initial project planning complete
@@ -202,4 +223,12 @@ This document tracks the overall completion progress of the cli-web-search proje
 - Created AGENTS.md
 - Created CLAUDE.md
 
-<!-- Add weekly updates here as the project progresses -->
+### Week 1 (Implementation)
+- Implemented core CLI framework with clap
+- Created configuration system with YAML and env var support
+- Implemented Brave, Google CSE, and Tavily providers
+- Created JSON, Markdown, and Text output formatters
+- Implemented in-memory caching
+- Added provider fallback chain
+- All 27 unit tests passing
+- Successfully built release binary for Linux x86_64

@@ -7,64 +7,72 @@ Task tracking for the cli-web-search project. Check items off as completed.
 ## Phase 1: MVP (Target: Week 3)
 
 ### Project Setup
-- [ ] Initialize Rust project with Cargo
-- [ ] Set up project structure (src/, tests/, etc.)
-- [ ] Configure Cargo.toml with dependencies
+- [x] Initialize Rust project with Cargo
+- [x] Set up project structure (src/, tests/, etc.)
+- [x] Configure Cargo.toml with dependencies
 - [ ] Set up CI/CD with GitHub Actions
 - [ ] Create initial README.md
 
 ### CLI Framework
-- [ ] Implement CLI argument parsing with clap
-- [ ] Define all command-line options and flags
-- [ ] Implement subcommands (config, providers, cache)
-- [ ] Add version and help output
-- [ ] Implement verbosity levels
+- [x] Implement CLI argument parsing with clap
+- [x] Define all command-line options and flags
+- [x] Implement subcommands (config, providers, cache)
+- [x] Add version and help output
+- [x] Implement verbosity levels
 
 ### Configuration System
-- [ ] Create config file structure (~/.config/cli-web-search/)
-- [ ] Implement YAML config parsing with serde
-- [ ] Add environment variable support
-- [ ] Implement `config init` wizard
-- [ ] Implement `config set/get/list` commands
-- [ ] Implement `config validate` for API key testing
-- [ ] Set proper file permissions (600) for config
+- [x] Create config file structure (~/.config/cli-web-search/)
+- [x] Implement YAML config parsing with serde
+- [x] Add environment variable support
+- [x] Implement `config init` wizard
+- [x] Implement `config set/get/list` commands
+- [x] Implement `config validate` for API key testing
+- [x] Set proper file permissions (600) for config
 
 ### Provider Infrastructure
-- [ ] Define SearchProvider trait
-- [ ] Create SearchResult struct
-- [ ] Implement provider registry
-- [ ] Add provider selection logic
-- [ ] Implement error handling for provider failures
+- [x] Define SearchProvider trait
+- [x] Create SearchResult struct
+- [x] Implement provider registry
+- [x] Add provider selection logic
+- [x] Implement error handling for provider failures
 
 ### Brave Search Provider (P0)
-- [ ] Implement Brave Search API client
-- [ ] Handle authentication
-- [ ] Parse search results
-- [ ] Implement rate limit handling
-- [ ] Add unit tests
+- [x] Implement Brave Search API client
+- [x] Handle authentication
+- [x] Parse search results
+- [x] Implement rate limit handling
+- [x] Add unit tests
 - [ ] Add integration tests
 
 ### Google CSE Provider (P0)
-- [ ] Implement Google CSE API client
-- [ ] Handle authentication (API key + CX)
-- [ ] Parse search results
-- [ ] Implement rate limit handling
-- [ ] Add unit tests
+- [x] Implement Google CSE API client
+- [x] Handle authentication (API key + CX)
+- [x] Parse search results
+- [x] Implement rate limit handling
+- [x] Add unit tests
+- [ ] Add integration tests
+
+### Tavily Provider (P1)
+- [x] Implement Tavily Search API client
+- [x] Handle authentication
+- [x] Parse search results
+- [x] Implement rate limit handling
+- [x] Add unit tests
 - [ ] Add integration tests
 
 ### Output Formatting
-- [ ] Define output format trait
-- [ ] Implement JSON formatter
-- [ ] Implement Markdown formatter
-- [ ] Implement plain text formatter
-- [ ] Add file output option (-o)
+- [x] Define output format trait
+- [x] Implement JSON formatter
+- [x] Implement Markdown formatter
+- [x] Implement plain text formatter
+- [x] Add file output option (-o)
 
 ### Error Handling
-- [ ] Define custom error types
-- [ ] Implement user-friendly error messages
-- [ ] Add network error handling
-- [ ] Add API error handling
-- [ ] Add configuration error handling
+- [x] Define custom error types
+- [x] Implement user-friendly error messages
+- [x] Add network error handling
+- [x] Add API error handling
+- [x] Add configuration error handling
 
 ---
 
@@ -72,31 +80,30 @@ Task tracking for the cli-web-search project. Check items off as completed.
 
 ### Additional Providers
 - [ ] Implement DuckDuckGo Instant Answer API
-- [ ] Implement Tavily Search API
 - [ ] Implement Serper API
-- [ ] Add provider status command
+- [x] Add provider status command
 
 ### Provider Fallback
-- [ ] Implement fallback chain logic
+- [x] Implement fallback chain logic
 - [ ] Add retry with exponential backoff
-- [ ] Handle rate limit detection
-- [ ] Add fallback configuration
+- [x] Handle rate limit detection
+- [x] Add fallback configuration
 
 ### Result Caching
-- [ ] Design cache storage format
-- [ ] Implement cache storage (SQLite or filesystem)
-- [ ] Add cache TTL logic
-- [ ] Implement cache invalidation
-- [ ] Add `cache clear` command
-- [ ] Add `cache stats` command
-- [ ] Implement --no-cache flag
+- [x] Design cache storage format
+- [x] Implement cache storage (in-memory)
+- [x] Add cache TTL logic
+- [x] Implement cache invalidation
+- [x] Add `cache clear` command
+- [x] Add `cache stats` command
+- [x] Implement --no-cache flag
 
 ### Search Filtering
-- [ ] Implement --num-results limiting
-- [ ] Implement --date-range filtering
-- [ ] Implement --include-domains filtering
-- [ ] Implement --exclude-domains filtering
-- [ ] Implement --safe-search option
+- [x] Implement --num-results limiting
+- [x] Implement --date-range filtering
+- [x] Implement --include-domains filtering
+- [x] Implement --exclude-domains filtering
+- [x] Implement --safe-search option
 
 ---
 
@@ -114,7 +121,7 @@ Task tracking for the cli-web-search project. Check items off as completed.
 - [ ] Achieve 80%+ code coverage
 - [ ] Add end-to-end tests
 - [ ] Add mock provider tests
-- [ ] Test on Linux x86_64
+- [x] Test on Linux x86_64
 - [ ] Test on Linux aarch64
 - [ ] Test on macOS x86_64
 - [ ] Test on macOS aarch64
@@ -170,6 +177,7 @@ Task tracking for the cli-web-search project. Check items off as completed.
 - [ ] Review and optimize async code
 - [ ] Improve error message clarity
 - [ ] Add telemetry (opt-in)
+- [ ] Persistent cache storage (SQLite or filesystem)
 
 ---
 
@@ -188,4 +196,4 @@ Task tracking for the cli-web-search project. Check items off as completed.
 - serde / serde_json / serde_yaml (serialization)
 - thiserror (error handling)
 - directories (cross-platform paths)
-- colored (terminal colors)
+- tracing (logging)

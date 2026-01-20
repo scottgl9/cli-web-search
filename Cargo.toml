@@ -1,0 +1,56 @@
+[package]
+name = "cli-web-search"
+version = "0.1.0"
+edition = "2021"
+authors = ["cli-web-search contributors"]
+description = "A cross-platform CLI web search tool for AI agents"
+license = "MIT"
+repository = "https://github.com/scottgl9/cli-web-search"
+keywords = ["cli", "web-search", "ai", "search-api"]
+categories = ["command-line-utilities"]
+
+[dependencies]
+# CLI framework
+clap = { version = "4", features = ["derive", "env"] }
+
+# Async runtime
+tokio = { version = "1", features = ["full"] }
+
+# HTTP client
+reqwest = { version = "0.12", features = ["json"] }
+
+# Serialization
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+serde_yaml = "0.9"
+
+# Error handling
+thiserror = "1"
+anyhow = "1"
+
+# Async traits
+async-trait = "0.1"
+
+# Cross-platform directories
+directories = "5"
+
+# Logging/tracing
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+
+# Date/time
+chrono = { version = "0.4", features = ["serde"] }
+
+# URL handling
+url = "2"
+
+[dev-dependencies]
+# Testing
+tokio-test = "0.4"
+wiremock = "0.6"
+tempfile = "3"
+
+[profile.release]
+lto = true
+codegen-units = 1
+strip = true
