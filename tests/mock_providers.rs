@@ -117,6 +117,60 @@ fn firecrawl_success_response() -> serde_json::Value {
     })
 }
 
+/// Test helper to create a mock SerpAPI response
+fn serpapi_success_response() -> serde_json::Value {
+    serde_json::json!({
+        "organic_results": [
+            {
+                "title": "Rust Programming Language",
+                "link": "https://www.rust-lang.org/",
+                "snippet": "A language empowering everyone to build reliable software.",
+                "position": 1,
+                "displayed_link": "https://www.rust-lang.org › learn",
+                "date": "Jan 15, 2024"
+            },
+            {
+                "title": "Rust Documentation",
+                "link": "https://doc.rust-lang.org/",
+                "snippet": "Official Rust documentation.",
+                "position": 2,
+                "displayed_link": "https://doc.rust-lang.org"
+            }
+        ],
+        "search_metadata": {
+            "id": "search-12345",
+            "status": "Success",
+            "total_time_taken": 0.42
+        }
+    })
+}
+
+/// Test helper to create a mock Bing Web Search API response
+fn bing_success_response() -> serde_json::Value {
+    serde_json::json!({
+        "_type": "SearchResponse",
+        "webPages": {
+            "totalEstimatedMatches": 12500000,
+            "value": [
+                {
+                    "name": "Rust Programming Language",
+                    "url": "https://www.rust-lang.org/",
+                    "snippet": "A language empowering everyone to build reliable software.",
+                    "displayUrl": "www.rust-lang.org",
+                    "dateLastCrawled": "2024-01-15T12:00:00Z"
+                },
+                {
+                    "name": "The Rust Book",
+                    "url": "https://doc.rust-lang.org/book/",
+                    "snippet": "The Rust Programming Language book.",
+                    "displayUrl": "doc.rust-lang.org/book",
+                    "dateLastCrawled": "2024-01-10T08:30:00Z"
+                }
+            ]
+        }
+    })
+}
+
 #[tokio::test]
 async fn test_mock_brave_search_success() {
     let mock_server = MockServer::start().await;
@@ -173,7 +227,12 @@ async fn test_mock_brave_rate_limited() {
 
     assert_eq!(response.status(), 429);
     assert_eq!(
-        response.headers().get("Retry-After").unwrap().to_str().unwrap(),
+        response
+            .headers()
+            .get("Retry-After")
+            .unwrap()
+            .to_str()
+            .unwrap(),
         "60"
     );
 }
@@ -441,4 +500,201 @@ async fn test_mock_malformed_json_response() {
 
     let result: Result<serde_json::Value, _> = response.json().await;
     assert!(result.is_err());
+}
+
+#[tokio::test]
+async fn test_mock_serpapi_search_success() {
+    let mock_server = MockServer::start().await;
+
+    Mock::given(method("GET"))
+        .and(path("/search"))
+        .and(query_param("q", "rust programming"))
+        .and(query_param("engine", "google"))
+        .respond_with(ResponseTemplate::new(200).set_body_json(serpapi_success_response()))
+        .mount(&mock_server)
+        .await;
+
+    let client = reqwest::Client::new();
+    let response = client
+        .get(format!("{}/search", mock_server.uri()))
+        .query(&[
+            ("q", "rust programming"),
+            ("api_key", "test-api-key"),
+            ("engine", "google"),
+            ("num", "10"),
+        ])
+        .send()
+        .await
+        .unwrap();
+
+    assert!(response.status().is_success());
+
+    let body: serde_json::Value = response.json().await.unwrap();
+    let results = body["organic_results"].as_array().unwrap();
+    assert_eq!(results.len(), 2);
+    assert_eq!(results[0]["title"], "Rust Programming Language");
+    assert_eq!(results[0]["link"], "https://www.rust-lang.org/");
+    assert_eq!(results[0]["position"], 1);
+}
+
+#[tokio::test]
+async fn test_mock_serpapi_rate_limited() {
+    let mock_server = MockServer::start().await;
+
+    Mock::given(method("GET"))
+        .and(path("/search"))
+        .respond_with(
+            ResponseTemplate::new(429)
+                .insert_header("Retry-After", "30")
+                .set_body_string("Rate limit exceeded"),
+        )
+        .mount(&mock_server)
+        .await;
+
+    let client = reqwest::Client::new();
+    let response = client
+        .get(format!("{}/search", mock_server.uri()))
+        .query(&[("q", "test"), ("api_key", "test-key")])
+        .send()
+        .await
+        .unwrap();
+
+    assert_eq!(response.status(), 429);
+    assert_eq!(
+        response
+            .headers()
+            .get("Retry-After")
+            .unwrap()
+            .to_str()
+            .unwrap(),
+        "30"
+    );
+}
+
+#[tokio::test]
+async fn test_mock_serpapi_invalid_api_key() {
+    let mock_server = MockServer::start().await;
+
+    Mock::given(method("GET"))
+        .and(path("/search"))
+        .respond_with(ResponseTemplate::new(401).set_body_json(serde_json::json!({
+            "error": "Invalid API key"
+        })))
+        .mount(&mock_server)
+        .await;
+
+    let client = reqwest::Client::new();
+    let response = client
+        .get(format!("{}/search", mock_server.uri()))
+        .query(&[("q", "test"), ("api_key", "invalid-key")])
+        .send()
+        .await
+        .unwrap();
+
+    assert_eq!(response.status(), 401);
+}
+
+#[tokio::test]
+async fn test_mock_bing_search_success() {
+    let mock_server = MockServer::start().await;
+
+    Mock::given(method("GET"))
+        .and(path("/v7.0/search"))
+        .and(header("Ocp-Apim-Subscription-Key", "test-api-key"))
+        .and(query_param("q", "rust programming"))
+        .respond_with(ResponseTemplate::new(200).set_body_json(bing_success_response()))
+        .mount(&mock_server)
+        .await;
+
+    let client = reqwest::Client::new();
+    let response = client
+        .get(format!("{}/v7.0/search", mock_server.uri()))
+        .header("Ocp-Apim-Subscription-Key", "test-api-key")
+        .query(&[("q", "rust programming"), ("count", "10")])
+        .send()
+        .await
+        .unwrap();
+
+    assert!(response.status().is_success());
+
+    let body: serde_json::Value = response.json().await.unwrap();
+    let results = body["webPages"]["value"].as_array().unwrap();
+    assert_eq!(results.len(), 2);
+    assert_eq!(results[0]["name"], "Rust Programming Language");
+    assert_eq!(results[0]["url"], "https://www.rust-lang.org/");
+}
+
+#[tokio::test]
+async fn test_mock_bing_rate_limited() {
+    let mock_server = MockServer::start().await;
+
+    Mock::given(method("GET"))
+        .and(path("/v7.0/search"))
+        .respond_with(
+            ResponseTemplate::new(429)
+                .insert_header("Retry-After", "60")
+                .set_body_string("Rate limit exceeded"),
+        )
+        .mount(&mock_server)
+        .await;
+
+    let client = reqwest::Client::new();
+    let response = client
+        .get(format!("{}/v7.0/search", mock_server.uri()))
+        .header("Ocp-Apim-Subscription-Key", "test-key")
+        .query(&[("q", "test")])
+        .send()
+        .await
+        .unwrap();
+
+    assert_eq!(response.status(), 429);
+}
+
+#[tokio::test]
+async fn test_mock_bing_invalid_api_key() {
+    let mock_server = MockServer::start().await;
+
+    Mock::given(method("GET"))
+        .and(path("/v7.0/search"))
+        .respond_with(ResponseTemplate::new(401).set_body_string("Access denied"))
+        .mount(&mock_server)
+        .await;
+
+    let client = reqwest::Client::new();
+    let response = client
+        .get(format!("{}/v7.0/search", mock_server.uri()))
+        .header("Ocp-Apim-Subscription-Key", "invalid-key")
+        .query(&[("q", "test")])
+        .send()
+        .await
+        .unwrap();
+
+    assert_eq!(response.status(), 401);
+}
+
+#[tokio::test]
+async fn test_mock_bing_empty_results() {
+    let mock_server = MockServer::start().await;
+
+    Mock::given(method("GET"))
+        .and(path("/v7.0/search"))
+        .respond_with(ResponseTemplate::new(200).set_body_json(serde_json::json!({
+            "_type": "SearchResponse"
+        })))
+        .mount(&mock_server)
+        .await;
+
+    let client = reqwest::Client::new();
+    let response = client
+        .get(format!("{}/v7.0/search", mock_server.uri()))
+        .header("Ocp-Apim-Subscription-Key", "test-key")
+        .query(&[("q", "xyznonexistent12345")])
+        .send()
+        .await
+        .unwrap();
+
+    assert!(response.status().is_success());
+
+    let body: serde_json::Value = response.json().await.unwrap();
+    assert!(body.get("webPages").is_none());
 }

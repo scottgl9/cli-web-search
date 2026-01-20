@@ -137,6 +137,30 @@ fn apply_env_overrides(config: &mut Config) {
         }
     }
 
+    // SerpAPI API key
+    if let Ok(api_key) = std::env::var(format!("{}_SERPAPI_API_KEY", ENV_PREFIX)) {
+        if config.providers.serpapi.is_none() {
+            config.providers.serpapi = Some(SerpApiConfig {
+                api_key: api_key.clone(),
+                enabled: true,
+            });
+        } else if let Some(ref mut serpapi) = config.providers.serpapi {
+            serpapi.api_key = api_key;
+        }
+    }
+
+    // Bing API key
+    if let Ok(api_key) = std::env::var(format!("{}_BING_API_KEY", ENV_PREFIX)) {
+        if config.providers.bing.is_none() {
+            config.providers.bing = Some(BingConfig {
+                api_key: api_key.clone(),
+                enabled: true,
+            });
+        } else if let Some(ref mut bing) = config.providers.bing {
+            bing.api_key = api_key;
+        }
+    }
+
     // Default provider override
     if let Ok(provider) = std::env::var(format!("{}_DEFAULT_PROVIDER", ENV_PREFIX)) {
         config.default_provider = Some(provider);
@@ -280,6 +304,36 @@ pub fn set_config_value(key: &str, value: &str) -> Result<()> {
         ["providers", "firecrawl", "enabled"] => {
             if let Some(ref mut firecrawl) = config.providers.firecrawl {
                 firecrawl.enabled = value.parse().unwrap_or(true);
+            }
+        }
+        ["providers", "serpapi", "api_key"] => {
+            if config.providers.serpapi.is_none() {
+                config.providers.serpapi = Some(SerpApiConfig {
+                    api_key: value.to_string(),
+                    enabled: true,
+                });
+            } else if let Some(ref mut serpapi) = config.providers.serpapi {
+                serpapi.api_key = value.to_string();
+            }
+        }
+        ["providers", "serpapi", "enabled"] => {
+            if let Some(ref mut serpapi) = config.providers.serpapi {
+                serpapi.enabled = value.parse().unwrap_or(true);
+            }
+        }
+        ["providers", "bing", "api_key"] => {
+            if config.providers.bing.is_none() {
+                config.providers.bing = Some(BingConfig {
+                    api_key: value.to_string(),
+                    enabled: true,
+                });
+            } else if let Some(ref mut bing) = config.providers.bing {
+                bing.api_key = value.to_string();
+            }
+        }
+        ["providers", "bing", "enabled"] => {
+            if let Some(ref mut bing) = config.providers.bing {
+                bing.enabled = value.parse().unwrap_or(true);
             }
         }
         ["defaults", "num_results"] => {

@@ -146,6 +146,11 @@ pub enum Provider {
     Serper,
     /// Firecrawl Search API
     Firecrawl,
+    /// SerpAPI (Google, Bing, Yahoo results)
+    #[value(name = "serpapi")]
+    SerpApi,
+    /// Bing Web Search API
+    Bing,
 }
 
 impl std::fmt::Display for Provider {
@@ -157,6 +162,8 @@ impl std::fmt::Display for Provider {
             Provider::Tavily => write!(f, "tavily"),
             Provider::Serper => write!(f, "serper"),
             Provider::Firecrawl => write!(f, "firecrawl"),
+            Provider::SerpApi => write!(f, "serpapi"),
+            Provider::Bing => write!(f, "bing"),
         }
     }
 }

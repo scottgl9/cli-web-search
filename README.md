@@ -4,7 +4,7 @@ A cross-platform command-line web search tool designed for AI agents and CLI pow
 
 ## Features
 
-- **Multiple Search Providers**: Brave, Google CSE, DuckDuckGo, Tavily, Serper, and Firecrawl
+- **Multiple Search Providers**: Brave, Google CSE, DuckDuckGo, Tavily, Serper, Firecrawl, SerpAPI, and Bing
 - **Flexible Output**: JSON, Markdown, or plain text formats
 - **Provider Fallback**: Automatic failover with retry and exponential backoff
 - **Result Caching**: In-memory cache with configurable TTL
@@ -86,7 +86,7 @@ cli-web-search -o results.json -f json "rust web frameworks"
 
 | Option | Short | Description |
 |--------|-------|-------------|
-| `--provider` | `-p` | Search provider (brave, google, ddg, tavily, serper, firecrawl) |
+| `--provider` | `-p` | Search provider (brave, google, ddg, tavily, serper, firecrawl, serpapi, bing) |
 | `--format` | `-f` | Output format (text, json, markdown) |
 | `--num-results` | `-n` | Number of results (default: 10) |
 | `--output` | `-o` | Write output to file |
@@ -128,6 +128,8 @@ cli-web-search cache stats          # Show cache statistics
 | **Tavily** | Yes | AI-optimized search results |
 | **Serper** | Yes | Google results via Serper API |
 | **Firecrawl** | Yes | Web crawling and search |
+| **SerpAPI** | Yes | Google, Bing, Yahoo results via SerpAPI |
+| **Bing** | Yes | Microsoft Bing Web Search API |
 
 ### Getting API Keys
 
@@ -136,6 +138,8 @@ cli-web-search cache stats          # Show cache statistics
 - **Tavily**: https://tavily.com/
 - **Serper**: https://serper.dev/
 - **Firecrawl**: https://firecrawl.dev/
+- **SerpAPI**: https://serpapi.com/
+- **Bing**: https://azure.microsoft.com/en-us/products/ai-services/ai-search
 
 ## Configuration
 
@@ -165,6 +169,12 @@ providers:
   firecrawl:
     api_key: "your-firecrawl-api-key"
     enabled: true
+  serpapi:
+    api_key: "your-serpapi-api-key"
+    enabled: true
+  bing:
+    api_key: "your-bing-api-key"
+    enabled: true
 
 fallback_order:
   - brave
@@ -172,6 +182,8 @@ fallback_order:
   - tavily
   - serper
   - firecrawl
+  - serpapi
+  - bing
   - duckduckgo
 
 defaults:
@@ -198,6 +210,8 @@ Environment variables override config file settings:
 | `CLI_WEB_SEARCH_TAVILY_API_KEY` | Tavily API key |
 | `CLI_WEB_SEARCH_SERPER_API_KEY` | Serper API key |
 | `CLI_WEB_SEARCH_FIRECRAWL_API_KEY` | Firecrawl API key |
+| `CLI_WEB_SEARCH_SERPAPI_API_KEY` | SerpAPI API key |
+| `CLI_WEB_SEARCH_BING_API_KEY` | Bing Web Search API key |
 | `CLI_WEB_SEARCH_DUCKDUCKGO_ENABLED` | Enable DuckDuckGo (true/false) |
 | `CLI_WEB_SEARCH_DEFAULT_PROVIDER` | Default provider name |
 

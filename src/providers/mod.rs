@@ -1,16 +1,20 @@
 //! Search provider infrastructure
 
+mod bing;
 mod brave;
 mod duckduckgo;
 mod firecrawl;
 mod google;
+mod serpapi;
 mod serper;
 mod tavily;
 
+pub use bing::BingProvider;
 pub use brave::BraveProvider;
 pub use duckduckgo::DuckDuckGoProvider;
 pub use firecrawl::FirecrawlProvider;
 pub use google::GoogleProvider;
+pub use serpapi::SerpApiProvider;
 pub use serper::SerperProvider;
 pub use tavily::TavilyProvider;
 
@@ -362,6 +366,22 @@ pub fn build_registry(config: &crate::config::Config) -> ProviderRegistry {
             registry.register(Box::new(FirecrawlProvider::new(
                 firecrawl_config.api_key.clone(),
             )));
+        }
+    }
+
+    // Register SerpAPI provider if configured
+    if let Some(ref serpapi_config) = config.providers.serpapi {
+        if serpapi_config.enabled {
+            registry.register(Box::new(SerpApiProvider::new(
+                serpapi_config.api_key.clone(),
+            )));
+        }
+    }
+
+    // Register Bing provider if configured
+    if let Some(ref bing_config) = config.providers.bing {
+        if bing_config.enabled {
+            registry.register(Box::new(BingProvider::new(bing_config.api_key.clone())));
         }
     }
 

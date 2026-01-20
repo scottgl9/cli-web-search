@@ -57,6 +57,14 @@ pub struct ProvidersConfig {
     /// Firecrawl configuration
     #[serde(default)]
     pub firecrawl: Option<FirecrawlConfig>,
+
+    /// SerpAPI configuration
+    #[serde(default)]
+    pub serpapi: Option<SerpApiConfig>,
+
+    /// Bing configuration
+    #[serde(default)]
+    pub bing: Option<BingConfig>,
 }
 
 /// Brave Search provider configuration
@@ -118,6 +126,28 @@ pub struct SerperConfig {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct FirecrawlConfig {
     /// API key for Firecrawl
+    pub api_key: String,
+
+    /// Whether this provider is enabled
+    #[serde(default = "default_true")]
+    pub enabled: bool,
+}
+
+/// SerpAPI configuration
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct SerpApiConfig {
+    /// API key for SerpAPI
+    pub api_key: String,
+
+    /// Whether this provider is enabled
+    #[serde(default = "default_true")]
+    pub enabled: bool,
+}
+
+/// Bing Web Search configuration
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct BingConfig {
+    /// API key for Bing Web Search
     pub api_key: String,
 
     /// Whether this provider is enabled
@@ -247,6 +277,16 @@ impl Config {
                 providers.push("firecrawl".to_string());
             }
         }
+        if let Some(ref serpapi) = self.providers.serpapi {
+            if serpapi.enabled {
+                providers.push("serpapi".to_string());
+            }
+        }
+        if let Some(ref bing) = self.providers.bing {
+            if bing.enabled {
+                providers.push("bing".to_string());
+            }
+        }
 
         providers
     }
@@ -340,6 +380,28 @@ impl Config {
             map.insert(
                 "providers.firecrawl.enabled".to_string(),
                 firecrawl.enabled.to_string(),
+            );
+        }
+
+        if let Some(ref serpapi) = self.providers.serpapi {
+            map.insert(
+                "providers.serpapi.api_key".to_string(),
+                mask_api_key(&serpapi.api_key),
+            );
+            map.insert(
+                "providers.serpapi.enabled".to_string(),
+                serpapi.enabled.to_string(),
+            );
+        }
+
+        if let Some(ref bing) = self.providers.bing {
+            map.insert(
+                "providers.bing.api_key".to_string(),
+                mask_api_key(&bing.api_key),
+            );
+            map.insert(
+                "providers.bing.enabled".to_string(),
+                bing.enabled.to_string(),
             );
         }
 
@@ -442,6 +504,8 @@ mod tests {
         assert!(providers.tavily.is_none());
         assert!(providers.serper.is_none());
         assert!(providers.firecrawl.is_none());
+        assert!(providers.serpapi.is_none());
+        assert!(providers.bing.is_none());
     }
 
     #[test]
@@ -483,15 +547,25 @@ mod tests {
             api_key: "key".to_string(),
             enabled: true,
         });
+        config.providers.serpapi = Some(SerpApiConfig {
+            api_key: "key".to_string(),
+            enabled: true,
+        });
+        config.providers.bing = Some(BingConfig {
+            api_key: "key".to_string(),
+            enabled: true,
+        });
 
         let enabled = config.enabled_providers();
-        assert_eq!(enabled.len(), 6);
+        assert_eq!(enabled.len(), 8);
         assert!(enabled.contains(&"brave".to_string()));
         assert!(enabled.contains(&"google".to_string()));
         assert!(enabled.contains(&"duckduckgo".to_string()));
         assert!(enabled.contains(&"tavily".to_string()));
         assert!(enabled.contains(&"serper".to_string()));
         assert!(enabled.contains(&"firecrawl".to_string()));
+        assert!(enabled.contains(&"serpapi".to_string()));
+        assert!(enabled.contains(&"bing".to_string()));
     }
 
     #[test]
