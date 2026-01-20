@@ -1,13 +1,17 @@
 //! Search provider infrastructure
 
 mod brave;
+mod duckduckgo;
 mod firecrawl;
 mod google;
+mod serper;
 mod tavily;
 
 pub use brave::BraveProvider;
+pub use duckduckgo::DuckDuckGoProvider;
 pub use firecrawl::FirecrawlProvider;
 pub use google::GoogleProvider;
+pub use serper::SerperProvider;
 pub use tavily::TavilyProvider;
 
 use crate::cli::{DateRange, SafeSearch};
@@ -267,10 +271,24 @@ pub fn build_registry(config: &crate::config::Config) -> ProviderRegistry {
         }
     }
 
+    // Register DuckDuckGo provider if configured
+    if let Some(ref ddg_config) = config.providers.duckduckgo {
+        if ddg_config.enabled {
+            registry.register(Box::new(DuckDuckGoProvider::new(true)));
+        }
+    }
+
     // Register Tavily provider if configured
     if let Some(ref tavily_config) = config.providers.tavily {
         if tavily_config.enabled {
             registry.register(Box::new(TavilyProvider::new(tavily_config.api_key.clone())));
+        }
+    }
+
+    // Register Serper provider if configured
+    if let Some(ref serper_config) = config.providers.serper {
+        if serper_config.enabled {
+            registry.register(Box::new(SerperProvider::new(serper_config.api_key.clone())));
         }
     }
 

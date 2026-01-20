@@ -294,6 +294,10 @@ impl Config {
             map.insert("providers.tavily.enabled".to_string(), tavily.enabled.to_string());
         }
 
+        if let Some(ref ddg) = self.providers.duckduckgo {
+            map.insert("providers.duckduckgo.enabled".to_string(), ddg.enabled.to_string());
+        }
+
         if let Some(ref serper) = self.providers.serper {
             map.insert("providers.serper.api_key".to_string(), mask_api_key(&serper.api_key));
             map.insert("providers.serper.enabled".to_string(), serper.enabled.to_string());

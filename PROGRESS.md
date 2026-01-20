@@ -8,12 +8,12 @@ This document tracks the overall completion progress of the cli-web-search proje
 
 | Phase | Status | Progress | Target Date |
 |-------|--------|----------|-------------|
-| Phase 1: MVP | In Progress | 90% | Week 3 |
-| Phase 2: Enhanced | In Progress | 75% | Week 5 |
+| Phase 1: MVP | ✅ Complete | 95% | Week 3 |
+| Phase 2: Enhanced | ✅ Complete | 90% | Week 5 |
 | Phase 3: Polish | Not Started | 5% | Week 7 |
 | Phase 4: Extended | Not Started | 0% | Future |
 
-**Total Project Progress: ~55%**
+**Total Project Progress: ~65%**
 
 ---
 
@@ -97,6 +97,25 @@ This document tracks the overall completion progress of the cli-web-search proje
 | Unit tests | ✅ Complete | |
 | Integration tests | ⬜ Not Started | Requires API key |
 
+### DuckDuckGo Provider (5/5)
+| Task | Status | Notes |
+|------|--------|-------|
+| API client | ✅ Complete | Instant Answer API |
+| Authentication | ✅ Complete | No API key required |
+| Result parsing | ✅ Complete | |
+| Rate limit handling | ✅ Complete | |
+| Unit tests | ✅ Complete | |
+
+### Serper Provider (5/6)
+| Task | Status | Notes |
+|------|--------|-------|
+| API client | ✅ Complete | |
+| Authentication | ✅ Complete | X-API-KEY header |
+| Result parsing | ✅ Complete | |
+| Rate limit handling | ✅ Complete | |
+| Unit tests | ✅ Complete | |
+| Integration tests | ⬜ Not Started | Requires API key |
+
 ### Output Formatting (5/5)
 | Task | Status | Notes |
 |------|--------|-------|
@@ -119,12 +138,12 @@ This document tracks the overall completion progress of the cli-web-search proje
 
 ## Phase 2: Enhanced Features Breakdown
 
-### Additional Providers (3/5)
+### Additional Providers (5/5)
 | Task | Status | Notes |
 |------|--------|-------|
-| DuckDuckGo API | ⬜ Not Started | |
+| DuckDuckGo API | ✅ Complete | Instant Answer API, no API key required |
 | Tavily API | ✅ Complete | |
-| Serper API | ⬜ Not Started | |
+| Serper API | ✅ Complete | Google results via Serper |
 | Firecrawl API | ✅ Complete | |
 | Provider status cmd | ✅ Complete | `providers` subcommand |
 
@@ -199,7 +218,7 @@ This document tracks the overall completion progress of the cli-web-search proje
 
 ### [0.1.0] - In Development
 - Initial MVP implementation
-- Brave, Google CSE, Tavily, and Firecrawl providers
+- Brave, Google CSE, Tavily, Firecrawl, DuckDuckGo, and Serper providers
 - JSON, Markdown, and Text output formats
 - Configuration system with env var support
 - In-memory caching with TTL
@@ -237,9 +256,9 @@ This document tracks the overall completion progress of the cli-web-search proje
 ### Week 1 (Implementation)
 - Implemented core CLI framework with clap
 - Created configuration system with YAML and env var support
-- Implemented Brave, Google CSE, Tavily, and Firecrawl providers
+- Implemented Brave, Google CSE, Tavily, Firecrawl, DuckDuckGo, and Serper providers
 - Created JSON, Markdown, and Text output formatters
 - Implemented in-memory caching
 - Added provider fallback chain
-- All 30 unit tests passing
+- All 37 unit tests passing
 - Successfully built release binary for Linux x86_64

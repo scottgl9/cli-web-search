@@ -87,8 +87,8 @@ Task tracking for the cli-web-search project. Check items off as completed.
 ## Phase 2: Enhanced Features (Target: Week 5)
 
 ### Additional Providers
-- [ ] Implement DuckDuckGo Instant Answer API
-- [ ] Implement Serper API
+- [x] Implement DuckDuckGo Instant Answer API
+- [x] Implement Serper API
 - [x] Implement Firecrawl Search API
 - [x] Add provider status command
 

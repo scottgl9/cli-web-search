@@ -100,6 +100,18 @@ fn apply_env_overrides(config: &mut Config) {
         }
     }
     
+    // DuckDuckGo enabled (no API key needed)
+    if let Ok(enabled) = std::env::var(format!("{}_DUCKDUCKGO_ENABLED", ENV_PREFIX)) {
+        let is_enabled = enabled.parse().unwrap_or(false);
+        if config.providers.duckduckgo.is_none() {
+            config.providers.duckduckgo = Some(DuckDuckGoConfig {
+                enabled: is_enabled,
+            });
+        } else if let Some(ref mut ddg) = config.providers.duckduckgo {
+            ddg.enabled = is_enabled;
+        }
+    }
+    
     // Serper API key
     if let Ok(api_key) = std::env::var(format!("{}_SERPER_API_KEY", ENV_PREFIX)) {
         if config.providers.serper.is_none() {
@@ -228,6 +240,15 @@ pub fn set_config_value(key: &str, value: &str) -> Result<()> {
         ["providers", "tavily", "enabled"] => {
             if let Some(ref mut tavily) = config.providers.tavily {
                 tavily.enabled = value.parse().unwrap_or(true);
+            }
+        }
+        ["providers", "duckduckgo", "enabled"] => {
+            if config.providers.duckduckgo.is_none() {
+                config.providers.duckduckgo = Some(DuckDuckGoConfig {
+                    enabled: value.parse().unwrap_or(true),
+                });
+            } else if let Some(ref mut ddg) = config.providers.duckduckgo {
+                ddg.enabled = value.parse().unwrap_or(true);
             }
         }
         ["providers", "serper", "api_key"] => {
