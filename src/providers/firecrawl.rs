@@ -293,4 +293,149 @@ mod tests {
         assert!(json.contains("\"limit\":10"));
         assert!(json.contains("\"tbs\":\"qdr:w\""));
     }
+
+    #[test]
+    fn test_firecrawl_request_optional_fields_skipped() {
+        let request = FirecrawlSearchRequest {
+            query: "test".to_string(),
+            limit: 5,
+            sources: vec!["web".to_string()],
+            tbs: None,
+            country: None,
+            timeout: None,
+        };
+
+        let json = serde_json::to_string(&request).unwrap();
+        assert!(!json.contains("\"tbs\""));
+        assert!(!json.contains("\"country\""));
+        assert!(!json.contains("\"timeout\""));
+    }
+
+    #[test]
+    fn test_firecrawl_response_deserialization() {
+        let json = r##"{
+            "success": true,
+            "data": {
+                "web": [
+                    {
+                        "title": "Test Result",
+                        "description": "A test description",
+                        "url": "https://example.com",
+                        "markdown": "# Test Heading",
+                        "metadata": {
+                            "title": "Test",
+                            "sourceURL": "https://source.example.com",
+                            "statusCode": 200
+                        }
+                    }
+                ]
+            },
+            "id": "search-123",
+            "creditsUsed": 1
+        }"##;
+
+        let response: FirecrawlSearchResponse = serde_json::from_str(json).unwrap();
+        assert!(response.success);
+        assert!(response.data.web.is_some());
+        let web_results = response.data.web.unwrap();
+        assert_eq!(web_results.len(), 1);
+        assert_eq!(web_results[0].title, Some("Test Result".to_string()));
+        assert_eq!(web_results[0].url, "https://example.com");
+    }
+
+    #[test]
+    fn test_firecrawl_response_empty_data() {
+        let json = r#"{
+            "success": true,
+            "data": {}
+        }"#;
+
+        let response: FirecrawlSearchResponse = serde_json::from_str(json).unwrap();
+        assert!(response.success);
+        assert!(response.data.web.is_none());
+        assert!(response.data.images.is_none());
+        assert!(response.data.news.is_none());
+    }
+
+    #[test]
+    fn test_firecrawl_response_with_warning() {
+        let json = r#"{
+            "success": false,
+            "data": {},
+            "warning": "Rate limit exceeded"
+        }"#;
+
+        let response: FirecrawlSearchResponse = serde_json::from_str(json).unwrap();
+        assert!(!response.success);
+        assert_eq!(response.warning, Some("Rate limit exceeded".to_string()));
+    }
+
+    #[test]
+    fn test_firecrawl_response_with_images_and_news() {
+        let json = r#"{
+            "success": true,
+            "data": {
+                "images": [
+                    {
+                        "title": "Image Result",
+                        "imageUrl": "https://example.com/image.jpg",
+                        "url": "https://example.com/page",
+                        "position": 1
+                    }
+                ],
+                "news": [
+                    {
+                        "title": "News Article",
+                        "snippet": "Breaking news",
+                        "url": "https://news.example.com",
+                        "date": "2024-01-15",
+                        "position": 1
+                    }
+                ]
+            }
+        }"#;
+
+        let response: FirecrawlSearchResponse = serde_json::from_str(json).unwrap();
+        assert!(response.success);
+        assert!(response.data.images.is_some());
+        assert!(response.data.news.is_some());
+        assert_eq!(response.data.images.unwrap().len(), 1);
+        assert_eq!(response.data.news.unwrap().len(), 1);
+    }
+
+    #[test]
+    fn test_firecrawl_web_result_minimal() {
+        let json = r#"{
+            "url": "https://example.com"
+        }"#;
+
+        let result: FirecrawlWebResult = serde_json::from_str(json).unwrap();
+        assert_eq!(result.url, "https://example.com");
+        assert!(result.title.is_none());
+        assert!(result.description.is_none());
+        assert!(result.metadata.is_none());
+    }
+
+    #[tokio::test]
+    async fn test_firecrawl_search_missing_api_key() {
+        let provider = FirecrawlProvider::new(String::new());
+        let options = SearchOptions::default();
+
+        let result = provider.search("test query", &options).await;
+        assert!(result.is_err());
+
+        let error = result.unwrap_err();
+        assert!(matches!(error, SearchError::MissingApiKey { .. }));
+        if let SearchError::MissingApiKey { provider, env_var } = error {
+            assert_eq!(provider, "firecrawl");
+            assert_eq!(env_var, "CLI_WEB_SEARCH_FIRECRAWL_API_KEY");
+        }
+    }
+
+    #[tokio::test]
+    async fn test_firecrawl_validate_api_key_not_configured() {
+        let provider = FirecrawlProvider::new(String::new());
+        let result = provider.validate_api_key().await.unwrap();
+        assert!(!result);
+    }
 }

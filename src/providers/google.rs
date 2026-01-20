@@ -208,4 +208,97 @@ mod tests {
         assert!(provider.is_configured());
         assert_eq!(provider.name(), "google");
     }
+
+    #[test]
+    fn test_google_response_deserialization() {
+        let json = r#"{
+            "items": [
+                {
+                    "title": "Rust Programming",
+                    "link": "https://www.rust-lang.org/",
+                    "snippet": "A systems programming language.",
+                    "displayLink": "rust-lang.org"
+                }
+            ],
+            "searchInformation": {
+                "totalResults": "1000000",
+                "searchTime": 0.25
+            }
+        }"#;
+
+        let response: GoogleSearchResponse = serde_json::from_str(json).unwrap();
+        assert!(response.items.is_some());
+        let items = response.items.unwrap();
+        assert_eq!(items.len(), 1);
+        assert_eq!(items[0].title, "Rust Programming");
+        assert_eq!(items[0].link, "https://www.rust-lang.org/");
+    }
+
+    #[test]
+    fn test_google_response_no_items() {
+        let json = r#"{
+            "searchInformation": {
+                "totalResults": "0"
+            }
+        }"#;
+
+        let response: GoogleSearchResponse = serde_json::from_str(json).unwrap();
+        assert!(response.items.is_none());
+    }
+
+    #[test]
+    fn test_google_response_optional_fields() {
+        let json = r#"{
+            "items": [
+                {
+                    "title": "Test",
+                    "link": "https://example.com/"
+                }
+            ]
+        }"#;
+
+        let response: GoogleSearchResponse = serde_json::from_str(json).unwrap();
+        let item = &response.items.unwrap()[0];
+        assert!(item.snippet.is_none());
+        assert!(item.display_link.is_none());
+    }
+
+    #[tokio::test]
+    async fn test_google_search_missing_api_key() {
+        let provider = GoogleProvider::new(String::new(), "cx".to_string());
+        let options = SearchOptions::new();
+
+        let result = provider.search("test", &options).await;
+        assert!(result.is_err());
+        match result.unwrap_err() {
+            SearchError::MissingApiKey { provider, .. } => {
+                assert_eq!(provider, "google");
+            }
+            _ => panic!("Expected MissingApiKey error"),
+        }
+    }
+
+    #[tokio::test]
+    async fn test_google_search_missing_cx() {
+        let provider = GoogleProvider::new("api-key".to_string(), String::new());
+        let options = SearchOptions::new();
+
+        let result = provider.search("test", &options).await;
+        assert!(result.is_err());
+        match result.unwrap_err() {
+            SearchError::MissingApiKey { provider, env_var } => {
+                assert_eq!(provider, "google");
+                assert!(env_var.contains("CX"));
+            }
+            _ => panic!("Expected MissingApiKey error"),
+        }
+    }
+
+    #[tokio::test]
+    async fn test_google_validate_api_key_not_configured() {
+        let provider = GoogleProvider::new(String::new(), String::new());
+        let result = provider.validate_api_key().await;
+        assert!(result.is_ok());
+        assert!(!result.unwrap());
+    }
 }

@@ -179,4 +179,94 @@ mod tests {
         assert!(provider.is_configured());
         assert_eq!(provider.name(), "brave");
     }
+
+    #[test]
+    fn test_brave_response_deserialization() {
+        let json = r#"{
+            "web": {
+                "results": [
+                    {
+                        "title": "Rust Programming Language",
+                        "url": "https://www.rust-lang.org/",
+                        "description": "A language empowering everyone to build reliable software.",
+                        "age": "2024-01-15",
+                        "meta_url": {
+                            "hostname": "rust-lang.org"
+                        }
+                    }
+                ]
+            }
+        }"#;
+
+        let response: BraveSearchResponse = serde_json::from_str(json).unwrap();
+        assert!(response.web.is_some());
+        let web = response.web.unwrap();
+        assert_eq!(web.results.len(), 1);
+        assert_eq!(web.results[0].title, "Rust Programming Language");
+        assert_eq!(web.results[0].url, "https://www.rust-lang.org/");
+    }
+
+    #[test]
+    fn test_brave_response_empty_results() {
+        let json = r#"{
+            "web": {
+                "results": []
+            }
+        }"#;
+
+        let response: BraveSearchResponse = serde_json::from_str(json).unwrap();
+        assert!(response.web.is_some());
+        assert!(response.web.unwrap().results.is_empty());
+    }
+
+    #[test]
+    fn test_brave_response_no_web() {
+        let json = r#"{}"#;
+
+        let response: BraveSearchResponse = serde_json::from_str(json).unwrap();
+        assert!(response.web.is_none());
+    }
+
+    #[test]
+    fn test_brave_result_optional_fields() {
+        let json = r#"{
+            "web": {
+                "results": [
+                    {
+                        "title": "Test",
+                        "url": "https://example.com/"
+                    }
+                ]
+            }
+        }"#;
+
+        let response: BraveSearchResponse = serde_json::from_str(json).unwrap();
+        let result = &response.web.unwrap().results[0];
+        assert!(result.description.is_none());
+        assert!(result.age.is_none());
+        assert!(result.meta_url.is_none());
+    }
+
+    #[tokio::test]
+    async fn test_brave_search_missing_api_key() {
+        let provider = BraveProvider::new(String::new());
+        let options = SearchOptions::new();
+
+        let result = provider.search("test", &options).await;
+        assert!(result.is_err());
+        match result.unwrap_err() {
+            SearchError::MissingApiKey { provider, .. } => {
+                assert_eq!(provider, "brave");
+            }
+            _ => panic!("Expected MissingApiKey error"),
+        }
+    }
+
+    #[tokio::test]
+    async fn test_brave_validate_api_key_not_configured() {
+        let provider = BraveProvider::new(String::new());
+        let result = provider.validate_api_key().await;
+        assert!(result.is_ok());
+        assert!(!result.unwrap());
+    }
 }

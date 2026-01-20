@@ -147,6 +147,12 @@ This document tracks the overall completion progress of the cli-web-search proje
 | Firecrawl API | ✅ Complete | |
 | Provider status cmd | ✅ Complete | `providers` subcommand |
 
+### Extra Providers (2/2)
+| Task | Status | Notes |
+|------|--------|-------|
+| SerpAPI | ✅ Complete | Google results via SerpAPI |
+| Bing Web Search | ✅ Complete | Microsoft Bing API |
+
 ### Provider Fallback (4/4)
 | Task | Status | Notes |
 |------|--------|-------|
@@ -192,8 +198,8 @@ This document tracks the overall completion progress of the cli-web-search proje
 ### Testing (5/8)
 | Task | Status | Notes |
 |------|--------|-------|
-| Unit tests | ✅ Complete | 86 unit tests passing |
-| E2E tests | ✅ Complete | 12 mock server tests |
+| Unit tests | ✅ Complete | 202 unit tests passing |
+| E2E tests | ✅ Complete | 19 mock server tests |
 | Mock provider tests | ✅ Complete | wiremock-based |
 | Linux x86_64 | ✅ Complete | Built and tested |
 | Linux aarch64 | ⬜ Not Started | CI will test |
@@ -264,3 +270,11 @@ This document tracks the overall completion progress of the cli-web-search proje
 - All 86 unit tests passing
 - Successfully built release binary for Linux x86_64
 - Comprehensive README documentation added
+
+### Week 2 (Testing Expansion)
+- Expanded unit test coverage from 86 to 202 tests
+- Added comprehensive tests for all providers (Brave, Google, Tavily, Serper, DuckDuckGo, Firecrawl, Bing, SerpAPI)
+- Added async tests for provider error handling
+- Added response deserialization tests for all API response types
+- Integration tests expanded from 12 to 19
+- All tests passing with cargo clippy clean

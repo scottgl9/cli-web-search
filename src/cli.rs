@@ -251,4 +251,238 @@ mod tests {
             }))
         ));
     }
+
+    #[test]
+    fn test_cli_parse_all_providers() {
+        // Test each provider can be parsed
+        for (flag, expected) in [
+            ("brave", Provider::Brave),
+            ("google", Provider::Google),
+            ("ddg", Provider::DuckDuckGo),
+            ("tavily", Provider::Tavily),
+            ("serper", Provider::Serper),
+            ("firecrawl", Provider::Firecrawl),
+            ("serpapi", Provider::SerpApi),
+            ("bing", Provider::Bing),
+        ] {
+            let cli = Cli::parse_from(["cli-web-search", "-p", flag, "query"]);
+            assert_eq!(cli.provider, Some(expected));
+        }
+    }
+
+    #[test]
+    fn test_cli_parse_output_formats() {
+        let cli_json = Cli::parse_from(["cli-web-search", "-f", "json", "query"]);
+        assert_eq!(cli_json.format, OutputFormat::Json);
+
+        let cli_md = Cli::parse_from(["cli-web-search", "-f", "markdown", "query"]);
+        assert_eq!(cli_md.format, OutputFormat::Markdown);
+
+        let cli_text = Cli::parse_from(["cli-web-search", "-f", "text", "query"]);
+        assert_eq!(cli_text.format, OutputFormat::Text);
+    }
+
+    #[test]
+    fn test_cli_parse_date_ranges() {
+        for (flag, expected) in [
+            ("day", DateRange::Day),
+            ("week", DateRange::Week),
+            ("month", DateRange::Month),
+            ("year", DateRange::Year),
+        ] {
+            let cli = Cli::parse_from(["cli-web-search", "--date-range", flag, "query"]);
+            assert_eq!(cli.date_range, Some(expected));
+        }
+    }
+
+    #[test]
+    fn test_cli_parse_safe_search() {
+        for (flag, expected) in [
+            ("off", SafeSearch::Off),
+            ("moderate", SafeSearch::Moderate),
+            ("strict", SafeSearch::Strict),
+        ] {
+            let cli = Cli::parse_from(["cli-web-search", "--safe-search", flag, "query"]);
+            assert_eq!(cli.safe_search, expected);
+        }
+    }
+
+    #[test]
+    fn test_cli_parse_verbosity() {
+        let cli_v = Cli::parse_from(["cli-web-search", "-v", "query"]);
+        assert_eq!(cli_v.verbose, 1);
+
+        let cli_vv = Cli::parse_from(["cli-web-search", "-vv", "query"]);
+        assert_eq!(cli_vv.verbose, 2);
+
+        let cli_vvv = Cli::parse_from(["cli-web-search", "-vvv", "query"]);
+        assert_eq!(cli_vvv.verbose, 3);
+    }
+
+    #[test]
+    fn test_cli_parse_flags() {
+        let cli = Cli::parse_from(["cli-web-search", "--no-cache", "--quiet", "query"]);
+        assert!(cli.no_cache);
+        assert!(cli.quiet);
+    }
+
+    #[test]
+    fn test_cli_parse_output_file() {
+        let cli = Cli::parse_from(["cli-web-search", "-o", "results.json", "query"]);
+        assert_eq!(cli.output, Some("results.json".to_string()));
+    }
+
+    #[test]
+    fn test_cli_parse_timeout() {
+        let cli = Cli::parse_from(["cli-web-search", "--timeout", "60", "query"]);
+        assert_eq!(cli.timeout, 60);
+    }
+
+    #[test]
+    fn test_cli_parse_domain_filters() {
+        let cli = Cli::parse_from([
+            "cli-web-search",
+            "--include-domains",
+            "rust-lang.org,crates.io",
+            "--exclude-domains",
+            "spam.com",
+            "query",
+        ]);
+        assert_eq!(
+            cli.include_domains,
+            Some(vec!["rust-lang.org".to_string(), "crates.io".to_string()])
+        );
+        assert_eq!(cli.exclude_domains, Some(vec!["spam.com".to_string()]));
+    }
+
+    #[test]
+    fn test_cli_parse_config_init() {
+        let cli = Cli::parse_from(["cli-web-search", "config", "init"]);
+        assert!(matches!(
+            cli.command,
+            Some(Commands::Config(ConfigArgs {
+                command: ConfigCommands::Init
+            }))
+        ));
+    }
+
+    #[test]
+    fn test_cli_parse_config_set() {
+        let cli = Cli::parse_from([
+            "cli-web-search",
+            "config",
+            "set",
+            "providers.brave.api_key",
+            "key",
+        ]);
+        match cli.command {
+            Some(Commands::Config(ConfigArgs {
+                command: ConfigCommands::Set { key, value },
+            })) => {
+                assert_eq!(key, "providers.brave.api_key");
+                assert_eq!(value, "key");
+            }
+            _ => panic!("Expected Config Set command"),
+        }
+    }
+
+    #[test]
+    fn test_cli_parse_config_get() {
+        let cli = Cli::parse_from(["cli-web-search", "config", "get", "default_provider"]);
+        match cli.command {
+            Some(Commands::Config(ConfigArgs {
+                command: ConfigCommands::Get { key },
+            })) => {
+                assert_eq!(key, "default_provider");
+            }
+            _ => panic!("Expected Config Get command"),
+        }
+    }
+
+    #[test]
+    fn test_cli_parse_config_list() {
+        let cli = Cli::parse_from(["cli-web-search", "config", "list"]);
+        assert!(matches!(
+            cli.command,
+            Some(Commands::Config(ConfigArgs {
+                command: ConfigCommands::List
+            }))
+        ));
+    }
+
+    #[test]
+    fn test_cli_parse_config_validate() {
+        let cli = Cli::parse_from(["cli-web-search", "config", "validate"]);
+        assert!(matches!(
+            cli.command,
+            Some(Commands::Config(ConfigArgs {
+                command: ConfigCommands::Validate
+            }))
+        ));
+    }
+
+    #[test]
+    fn test_cli_parse_providers_command() {
+        let cli = Cli::parse_from(["cli-web-search", "providers"]);
+        assert!(matches!(cli.command, Some(Commands::Providers)));
+    }
+
+    #[test]
+    fn test_cli_parse_cache_clear() {
+        let cli = Cli::parse_from(["cli-web-search", "cache", "clear"]);
+        assert!(matches!(
+            cli.command,
+            Some(Commands::Cache(CacheArgs {
+                command: CacheCommands::Clear
+            }))
+        ));
+    }
+
+    #[test]
+    fn test_cli_parse_cache_stats() {
+        let cli = Cli::parse_from(["cli-web-search", "cache", "stats"]);
+        assert!(matches!(
+            cli.command,
+            Some(Commands::Cache(CacheArgs {
+                command: CacheCommands::Stats
+            }))
+        ));
+    }
+
+    #[test]
+    fn test_provider_display() {
+        assert_eq!(format!("{}", Provider::Brave), "brave");
+        assert_eq!(format!("{}", Provider::Google), "google");
+        assert_eq!(format!("{}", Provider::DuckDuckGo), "duckduckgo");
+        assert_eq!(format!("{}", Provider::Tavily), "tavily");
+        assert_eq!(format!("{}", Provider::Serper), "serper");
+        assert_eq!(format!("{}", Provider::Firecrawl), "firecrawl");
+        assert_eq!(format!("{}", Provider::SerpApi), "serpapi");
+        assert_eq!(format!("{}", Provider::Bing), "bing");
+    }
+
+    #[test]
+    fn test_output_format_default() {
+        let format = OutputFormat::default();
+        assert_eq!(format, OutputFormat::Text);
+    }
+
+    #[test]
+    fn test_safe_search_default() {
+        let safe = SafeSearch::default();
+        assert_eq!(safe, SafeSearch::Moderate);
+    }
+
+    #[test]
+    fn test_cli_no_query() {
+        let cli = Cli::parse_from(["cli-web-search"]);
+        assert!(cli.query.is_none());
+        assert!(cli.command.is_none());
+    }
+
+    #[test]
+    fn test_date_range_equality() {
+        assert_eq!(DateRange::Day, DateRange::Day);
+        assert_ne!(DateRange::Day, DateRange::Week);
+    }
 }

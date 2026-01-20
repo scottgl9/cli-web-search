@@ -212,6 +212,16 @@ mod tests {
     }
 
     #[test]
+    fn test_extract_domain_empty() {
+        assert_eq!(extract_domain(""), "");
+    }
+
+    #[test]
+    fn test_extract_domain_no_path() {
+        assert_eq!(extract_domain("example.com"), "example.com");
+    }
+
+    #[test]
     fn test_bing_response_deserialization() {
         let json = r#"{
             "_type": "SearchResponse",
@@ -265,5 +275,55 @@ mod tests {
         let web_pages = response.web_pages.unwrap();
         assert_eq!(web_pages.value[0].snippet, None);
         assert_eq!(web_pages.value[0].date_last_crawled, None);
+    }
+
+    #[test]
+    fn test_bing_response_multiple_results() {
+        let json = r#"{
+            "webPages": {
+                "totalEstimatedMatches": 1000,
+                "value": [
+                    {
+                        "name": "Result 1",
+                        "url": "https://example1.com",
+                        "displayUrl": "example1.com"
+                    },
+                    {
+                        "name": "Result 2",
+                        "url": "https://example2.com",
+                        "snippet": "Second result",
+                        "displayUrl": "example2.com/path"
+                    }
+                ]
+            }
+        }"#;
+
+        let response: BingResponse = serde_json::from_str(json).unwrap();
+        let web_pages = response.web_pages.unwrap();
+        assert_eq!(web_pages.value.len(), 2);
+        assert_eq!(web_pages.total_estimated_matches, Some(1000));
+    }
+
+    #[tokio::test]
+    async fn test_bing_search_missing_api_key() {
+        let provider = BingProvider::new(String::new());
+        let options = SearchOptions::default();
+
+        let result = provider.search("test query", &options).await;
+        assert!(result.is_err());
+
+        let error = result.unwrap_err();
+        assert!(matches!(error, SearchError::MissingApiKey { .. }));
+        if let SearchError::MissingApiKey { provider, env_var } = error {
+            assert_eq!(provider, "bing");
+            assert_eq!(env_var, "CLI_WEB_SEARCH_BING_API_KEY");
+        }
+    }
+
+    #[tokio::test]
+    async fn test_bing_validate_api_key_not_configured() {
+        let provider = BingProvider::new(String::new());
+        let result = provider.validate_api_key().await.unwrap();
+        assert!(!result);
     }
 }

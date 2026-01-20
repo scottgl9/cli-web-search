@@ -127,8 +127,8 @@ Task tracking for the cli-web-search project. Check items off as completed.
 - [x] Add troubleshooting guide
 
 ### Testing
-- [x] Add comprehensive unit tests (86 tests passing)
-- [x] Add end-to-end tests (12 mock server tests)
+- [x] Add comprehensive unit tests (202 tests passing)
+- [x] Add end-to-end tests (19 mock server tests)
 - [x] Add mock provider tests
 - [x] Test on Linux x86_64
 - [x] Test on Linux aarch64 (CI)
@@ -164,8 +164,8 @@ Task tracking for the cli-web-search project. Check items off as completed.
 - [x] Update CI for Windows builds
 
 ### Additional Providers
-- [ ] SerpAPI integration
-- [ ] Bing Web Search API
+- [x] SerpAPI integration
+- [x] Bing Web Search API
 - [ ] Evaluate new search APIs
 
 ### Advanced Features

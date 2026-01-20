@@ -101,3 +101,159 @@ impl SearchError {
 
 /// Result type alias for SearchError
 pub type Result<T> = std::result::Result<T, SearchError>;
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_api_error_constructor() {
+        let err = SearchError::api("brave", "Connection failed");
+        match err {
+            SearchError::Api { provider, message } => {
+                assert_eq!(provider, "brave");
+                assert_eq!(message, "Connection failed");
+            }
+            _ => panic!("Expected Api error"),
+        }
+    }
+
+    #[test]
+    fn test_rate_limited_with_retry_after() {
+        let err = SearchError::rate_limited("google", Some(60));
+        match err {
+            SearchError::RateLimited {
+                provider,
+                retry_after,
+            } => {
+                assert_eq!(provider, "google");
+                assert_eq!(retry_after, Some(60));
+            }
+            _ => panic!("Expected RateLimited error"),
+        }
+    }
+
+    #[test]
+    fn test_rate_limited_without_retry_after() {
+        let err = SearchError::rate_limited("tavily", None);
+        match err {
+            SearchError::RateLimited {
+                provider,
+                retry_after,
+            } => {
+                assert_eq!(provider, "tavily");
+                assert!(retry_after.is_none());
+            }
+            _ => panic!("Expected RateLimited error"),
+        }
+    }
+
+    #[test]
+    fn test_invalid_api_key_constructor() {
+        let err = SearchError::invalid_api_key("serper");
+        match err {
+            SearchError::InvalidApiKey { provider } => {
+                assert_eq!(provider, "serper");
+            }
+            _ => panic!("Expected InvalidApiKey error"),
+        }
+    }
+
+    #[test]
+    fn test_missing_api_key_constructor() {
+        let err = SearchError::missing_api_key("brave", "CLI_WEB_SEARCH_BRAVE_API_KEY");
+        match err {
+            SearchError::MissingApiKey { provider, env_var } => {
+                assert_eq!(provider, "brave");
+                assert_eq!(env_var, "CLI_WEB_SEARCH_BRAVE_API_KEY");
+            }
+            _ => panic!("Expected MissingApiKey error"),
+        }
+    }
+
+    #[test]
+    fn test_api_error_display() {
+        let err = SearchError::api("brave", "Connection timeout");
+        let msg = format!("{}", err);
+        assert!(msg.contains("brave"));
+        assert!(msg.contains("Connection timeout"));
+    }
+
+    #[test]
+    fn test_rate_limited_display_with_retry() {
+        let err = SearchError::rate_limited("google", Some(30));
+        let msg = format!("{}", err);
+        assert!(msg.contains("google"));
+        assert!(msg.contains("30 seconds"));
+    }
+
+    #[test]
+    fn test_rate_limited_display_without_retry() {
+        let err = SearchError::rate_limited("tavily", None);
+        let msg = format!("{}", err);
+        assert!(msg.contains("tavily"));
+        assert!(!msg.contains("seconds"));
+    }
+
+    #[test]
+    fn test_invalid_api_key_display() {
+        let err = SearchError::invalid_api_key("bing");
+        let msg = format!("{}", err);
+        assert!(msg.contains("Invalid API key"));
+        assert!(msg.contains("bing"));
+    }
+
+    #[test]
+    fn test_missing_api_key_display() {
+        let err = SearchError::missing_api_key("firecrawl", "CLI_WEB_SEARCH_FIRECRAWL_API_KEY");
+        let msg = format!("{}", err);
+        assert!(msg.contains("firecrawl"));
+        assert!(msg.contains("CLI_WEB_SEARCH_FIRECRAWL_API_KEY"));
+    }
+
+    #[test]
+    fn test_config_error_display() {
+        let err = SearchError::Config("Invalid configuration file".to_string());
+        let msg = format!("{}", err);
+        assert!(msg.contains("Invalid configuration file"));
+    }
+
+    #[test]
+    fn test_no_providers_configured_display() {
+        let err = SearchError::NoProvidersConfigured;
+        let msg = format!("{}", err);
+        assert!(msg.contains("No search providers configured"));
+        assert!(msg.contains("config init"));
+    }
+
+    #[test]
+    fn test_all_providers_failed_display() {
+        let err = SearchError::AllProvidersFailed("Network timeout".to_string());
+        let msg = format!("{}", err);
+        assert!(msg.contains("All providers failed"));
+        assert!(msg.contains("Network timeout"));
+    }
+
+    #[test]
+    fn test_timeout_error_display() {
+        let err = SearchError::Timeout(30);
+        let msg = format!("{}", err);
+        assert!(msg.contains("30 seconds"));
+    }
+
+    #[test]
+    fn test_unknown_provider_display() {
+        let err = SearchError::UnknownProvider("foobar".to_string());
+        let msg = format!("{}", err);
+        assert!(msg.contains("foobar"));
+        assert!(msg.contains("Unknown provider"));
+    }
+
+    #[test]
+    fn test_error_debug_impl() {
+        let err = SearchError::api("test", "error");
+        let debug = format!("{:?}", err);
+        assert!(debug.contains("Api"));
+        assert!(debug.contains("test"));
+    }
+}

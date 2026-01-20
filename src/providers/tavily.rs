@@ -165,4 +165,111 @@ mod tests {
         assert!(provider.is_configured());
         assert_eq!(provider.name(), "tavily");
     }
+
+    #[test]
+    fn test_tavily_response_deserialization() {
+        let json = r#"{
+            "results": [
+                {
+                    "title": "Rust Lang",
+                    "url": "https://www.rust-lang.org/",
+                    "content": "Rust is a systems programming language.",
+                    "published_date": "2024-01-01"
+                }
+            ]
+        }"#;
+
+        let response: TavilySearchResponse = serde_json::from_str(json).unwrap();
+        assert_eq!(response.results.len(), 1);
+        assert_eq!(response.results[0].title, "Rust Lang");
+        assert_eq!(response.results[0].url, "https://www.rust-lang.org/");
+        assert_eq!(
+            response.results[0].published_date,
+            Some("2024-01-01".to_string())
+        );
+    }
+
+    #[test]
+    fn test_tavily_response_empty_results() {
+        let json = r#"{
+            "results": []
+        }"#;
+
+        let response: TavilySearchResponse = serde_json::from_str(json).unwrap();
+        assert!(response.results.is_empty());
+    }
+
+    #[test]
+    fn test_tavily_response_no_published_date() {
+        let json = r#"{
+            "results": [
+                {
+                    "title": "Test",
+                    "url": "https://example.com/",
+                    "content": "Content"
+                }
+            ]
+        }"#;
+
+        let response: TavilySearchResponse = serde_json::from_str(json).unwrap();
+        assert!(response.results[0].published_date.is_none());
+    }
+
+    #[test]
+    fn test_tavily_request_serialization() {
+        let request = TavilySearchRequest {
+            api_key: "test-key".to_string(),
+            query: "rust programming".to_string(),
+            max_results: 10,
+            include_domains: vec!["rust-lang.org".to_string()],
+            exclude_domains: vec![],
+            search_depth: "basic".to_string(),
+        };
+
+        let json = serde_json::to_string(&request).unwrap();
+        assert!(json.contains("test-key"));
+        assert!(json.contains("rust programming"));
+        assert!(json.contains("rust-lang.org"));
+        // Empty exclude_domains should be skipped
+        assert!(!json.contains("exclude_domains"));
+    }
+
+    #[test]
+    fn test_tavily_request_empty_domains_skipped() {
+        let request = TavilySearchRequest {
+            api_key: "key".to_string(),
+            query: "query".to_string(),
+            max_results: 5,
+            include_domains: vec![],
+            exclude_domains: vec![],
+            search_depth: "basic".to_string(),
+        };
+
+        let json = serde_json::to_string(&request).unwrap();
+        assert!(!json.contains("include_domains"));
+        assert!(!json.contains("exclude_domains"));
+    }
+
+    #[tokio::test]
+    async fn test_tavily_search_missing_api_key() {
+        let provider = TavilyProvider::new(String::new());
+        let options = SearchOptions::new();
+
+        let result = provider.search("test", &options).await;
+        assert!(result.is_err());
+        match result.unwrap_err() {
+            SearchError::MissingApiKey { provider, .. } => {
+                assert_eq!(provider, "tavily");
+            }
+            _ => panic!("Expected MissingApiKey error"),
+        }
+    }
+
+    #[tokio::test]
+    async fn test_tavily_validate_api_key_not_configured() {
+        let provider = TavilyProvider::new(String::new());
+        let result = provider.validate_api_key().await;
+        assert!(result.is_ok());
+        assert!(!result.unwrap());
+    }
 }

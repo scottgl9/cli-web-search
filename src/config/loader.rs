@@ -392,4 +392,30 @@ mod tests {
         assert!(config.default_provider.is_none());
         assert_eq!(config.defaults.num_results, 10);
     }
+
+    #[test]
+    fn test_config_dir() {
+        let dir = config_dir();
+        assert!(dir.is_ok());
+        let path = dir.unwrap();
+        assert!(path.to_string_lossy().contains("cli-web-search"));
+    }
+
+    #[test]
+    fn test_cache_dir() {
+        let dir = cache_dir();
+        assert!(dir.is_ok());
+    }
+
+    #[test]
+    fn test_load_config_returns_default_when_no_file() {
+        // This should return a default config without failing
+        let config = load_config();
+        assert!(config.is_ok());
+    }
+
+    #[test]
+    fn test_env_prefix_constant() {
+        assert_eq!(ENV_PREFIX, "CLI_WEB_SEARCH");
+    }
 }

@@ -213,6 +213,19 @@ mod tests {
     }
 
     #[test]
+    fn test_serper_request_safe_false_skipped() {
+        let request = SerperRequest {
+            q: "test".to_string(),
+            num: 5,
+            safe: false,
+        };
+
+        let json = serde_json::to_string(&request).unwrap();
+        // When safe is false, it should be skipped from serialization
+        assert!(!json.contains("safe"));
+    }
+
+    #[test]
     fn test_extract_domain() {
         assert_eq!(
             extract_domain(&Some("example.com › path › page".to_string())),
@@ -223,5 +236,78 @@ mod tests {
             Some("simple.com".to_string())
         );
         assert_eq!(extract_domain(&None), None);
+    }
+
+    #[test]
+    fn test_extract_domain_complex() {
+        assert_eq!(
+            extract_domain(&Some("docs.rust-lang.org › book › ch01".to_string())),
+            Some("docs.rust-lang.org".to_string())
+        );
+    }
+
+    #[test]
+    fn test_serper_response_deserialization() {
+        let json = r#"{
+            "organic": [
+                {
+                    "title": "Rust Programming",
+                    "link": "https://www.rust-lang.org/",
+                    "snippet": "Build reliable software.",
+                    "date": "Jan 15, 2024",
+                    "displayedLink": "rust-lang.org › learn"
+                }
+            ],
+            "searchParameters": {
+                "q": "rust programming"
+            }
+        }"#;
+
+        let response: SerperResponse = serde_json::from_str(json).unwrap();
+        assert!(response.organic.is_some());
+        let organic = response.organic.unwrap();
+        assert_eq!(organic.len(), 1);
+        assert_eq!(organic[0].title, "Rust Programming");
+    }
+
+    #[test]
+    fn test_serper_response_empty_organic() {
+        let json = r#"{
+            "organic": []
+        }"#;
+
+        let response: SerperResponse = serde_json::from_str(json).unwrap();
+        assert!(response.organic.unwrap().is_empty());
+    }
+
+    #[test]
+    fn test_serper_response_no_organic() {
+        let json = r#"{}"#;
+
+        let response: SerperResponse = serde_json::from_str(json).unwrap();
+        assert!(response.organic.is_none());
+    }
+
+    #[tokio::test]
+    async fn test_serper_search_missing_api_key() {
+        let provider = SerperProvider::new(String::new());
+        let options = SearchOptions::new();
+
+        let result = provider.search("test", &options).await;
+        assert!(result.is_err());
+        match result.unwrap_err() {
+            SearchError::MissingApiKey { provider, .. } => {
+                assert_eq!(provider, "serper");
+            }
+            _ => panic!("Expected MissingApiKey error"),
+        }
+    }
+
+    #[tokio::test]
+    async fn test_serper_validate_api_key_not_configured() {
+        let provider = SerperProvider::new(String::new());
+        let result = provider.validate_api_key().await;
+        assert!(result.is_ok());
+        assert!(!result.unwrap());
     }
 }

@@ -232,6 +232,16 @@ mod tests {
     }
 
     #[test]
+    fn test_extract_domain_no_separator() {
+        assert_eq!(extract_domain("example.com"), "example.com");
+    }
+
+    #[test]
+    fn test_extract_domain_empty() {
+        assert_eq!(extract_domain(""), "");
+    }
+
+    #[test]
     fn test_serpapi_response_deserialization() {
         let json = r#"{
             "organic_results": [
@@ -275,5 +285,112 @@ mod tests {
         let response: SerpApiResponse = serde_json::from_str(json).unwrap();
         assert!(response.organic_results.is_none());
         assert!(response.error.is_none());
+    }
+
+    #[test]
+    fn test_serpapi_response_with_date() {
+        let json = r#"{
+            "organic_results": [
+                {
+                    "title": "Dated Result",
+                    "link": "https://example.com",
+                    "date": "2024-01-15"
+                }
+            ]
+        }"#;
+
+        let response: SerpApiResponse = serde_json::from_str(json).unwrap();
+        let results = response.organic_results.unwrap();
+        assert_eq!(results[0].date, Some("2024-01-15".to_string()));
+    }
+
+    #[test]
+    fn test_serpapi_response_minimal_result() {
+        let json = r#"{
+            "organic_results": [
+                {
+                    "title": "Minimal",
+                    "link": "https://example.com"
+                }
+            ]
+        }"#;
+
+        let response: SerpApiResponse = serde_json::from_str(json).unwrap();
+        let results = response.organic_results.unwrap();
+        assert_eq!(results[0].title, "Minimal");
+        assert!(results[0].snippet.is_none());
+        assert!(results[0].position.is_none());
+        assert!(results[0].date.is_none());
+        assert!(results[0].displayed_link.is_none());
+    }
+
+    #[test]
+    fn test_serpapi_response_multiple_results() {
+        let json = r#"{
+            "organic_results": [
+                {
+                    "title": "Result 1",
+                    "link": "https://example1.com",
+                    "position": 1
+                },
+                {
+                    "title": "Result 2",
+                    "link": "https://example2.com",
+                    "position": 2
+                },
+                {
+                    "title": "Result 3",
+                    "link": "https://example3.com",
+                    "position": 3
+                }
+            ]
+        }"#;
+
+        let response: SerpApiResponse = serde_json::from_str(json).unwrap();
+        let results = response.organic_results.unwrap();
+        assert_eq!(results.len(), 3);
+        assert_eq!(results[0].position, Some(1));
+        assert_eq!(results[2].position, Some(3));
+    }
+
+    #[test]
+    fn test_serpapi_search_metadata() {
+        let json = r#"{
+            "search_metadata": {
+                "id": "abc123",
+                "status": "Success",
+                "total_time_taken": 1.5
+            }
+        }"#;
+
+        let response: SerpApiResponse = serde_json::from_str(json).unwrap();
+        assert!(response.search_metadata.is_some());
+        let metadata = response.search_metadata.unwrap();
+        assert_eq!(metadata.id, Some("abc123".to_string()));
+        assert_eq!(metadata.status, Some("Success".to_string()));
+        assert_eq!(metadata.total_time_taken, Some(1.5));
+    }
+
+    #[tokio::test]
+    async fn test_serpapi_search_missing_api_key() {
+        let provider = SerpApiProvider::new(String::new());
+        let options = SearchOptions::default();
+
+        let result = provider.search("test query", &options).await;
+        assert!(result.is_err());
+
+        let error = result.unwrap_err();
+        assert!(matches!(error, SearchError::MissingApiKey { .. }));
+        if let SearchError::MissingApiKey { provider, env_var } = error {
+            assert_eq!(provider, "serpapi");
+            assert_eq!(env_var, "CLI_WEB_SEARCH_SERPAPI_API_KEY");
+        }
+    }
+
+    #[tokio::test]
+    async fn test_serpapi_validate_api_key_not_configured() {
+        let provider = SerpApiProvider::new(String::new());
+        let result = provider.validate_api_key().await.unwrap();
+        assert!(!result);
     }
 }
