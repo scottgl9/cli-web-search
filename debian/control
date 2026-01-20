@@ -1,0 +1,26 @@
+Source: cli-web-search
+Section: utils
+Priority: optional
+Maintainer: Scott Glover <scottgl@gmail.com>
+Build-Depends: debhelper-compat (= 13), cargo, rustc (>= 1.70)
+Standards-Version: 4.6.2
+Homepage: https://github.com/scottgl9/cli-web-search
+Vcs-Git: https://github.com/scottgl9/cli-web-search.git
+Vcs-Browser: https://github.com/scottgl9/cli-web-search
+Rules-Requires-Root: no
+
+Package: cli-web-search
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Cross-platform CLI web search tool for AI agents
+ cli-web-search is a command-line tool that provides web search capabilities
+ to AI agents and CLI users. It supports multiple search API providers
+ including Brave, Google CSE, DuckDuckGo, Tavily, Serper, Firecrawl,
+ SerpAPI, and Bing.
+ .
+ Features:
+  - Multiple search provider support with automatic fallback
+  - JSON, Markdown, and plain text output formats
+  - Result caching with configurable TTL
+  - Search filtering (date range, domains, safe search)
+  - Cross-platform configuration system

@@ -163,6 +163,12 @@ Task tracking for the cli-web-search project. Check items off as completed.
 - [ ] Create Windows installer (Inno Setup/WiX)
 - [x] Update CI for Windows builds
 
+### Linux Packaging
+- [x] Create Makefile with build targets
+- [x] Create Debian packaging (debian/ directory)
+- [ ] Create RPM packaging (.spec file)
+- [ ] Create AUR package (PKGBUILD)
+
 ### Additional Providers
 - [x] SerpAPI integration
 - [x] Bing Web Search API

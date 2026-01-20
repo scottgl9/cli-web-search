@@ -1,0 +1,23 @@
+#!/usr/bin/make -f
+
+export DH_VERBOSE = 1
+export CARGO_HOME = $(CURDIR)/debian/cargo_home
+
+%:
+	dh $@
+
+override_dh_auto_build:
+	cargo build --release --locked
+
+override_dh_auto_install:
+	install -D -m 755 target/release/cli-web-search $(CURDIR)/debian/cli-web-search/usr/bin/cli-web-search
+
+override_dh_auto_test:
+	cargo test --release --locked
+
+override_dh_auto_clean:
+	cargo clean
+	rm -rf $(CARGO_HOME)
+
+override_dh_shlibdeps:
+	dh_shlibdeps --dpkg-shlibdeps-params=--ignore-missing-info

@@ -40,3 +40,15 @@ Thumbs.db
 
 # Log files
 *.log
+
+# Debian packaging artifacts
+debian/cli-web-search/
+debian/.debhelper/
+debian/debhelper-build-stamp
+debian/files
+debian/*.substvars
+debian/*.debhelper.log
+debian/cargo_home/
+*.deb
+*.buildinfo
+*.changes

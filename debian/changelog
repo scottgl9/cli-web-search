@@ -1,0 +1,12 @@
+cli-web-search (0.1.0-1) unstable; urgency=medium
+
+  * Initial release.
+  * Support for multiple search providers: Brave, Google CSE, DuckDuckGo,
+    Tavily, Serper, Firecrawl, SerpAPI, and Bing
+  * JSON, Markdown, and plain text output formats
+  * Result caching with configurable TTL
+  * Provider fallback chain with automatic retry
+  * Search filtering options (date range, domains, safe search)
+  * Cross-platform configuration system
+
+ -- Scott Glover <scottgl@gmail.com>  Mon, 20 Jan 2025 12:00:00 +0000

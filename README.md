@@ -21,10 +21,31 @@ git clone https://github.com/scottgl9/cli-web-search.git
 cd cli-web-search
 
 # Build release binary
-cargo build --release
+make build
 
-# Install to PATH (optional)
-cp target/release/cli-web-search ~/.local/bin/
+# Install to system (default: /usr/local/bin)
+sudo make install
+
+# Or install to custom location
+make install PREFIX=~/.local
+```
+
+### From Debian Package
+
+```bash
+# Clone and build the .deb package
+git clone https://github.com/scottgl9/cli-web-search.git
+cd cli-web-search
+make deb
+
+# Install the package
+sudo dpkg -i cli-web-search_*.deb
+```
+
+### Using Cargo
+
+```bash
+cargo install --git https://github.com/scottgl9/cli-web-search.git
 ```
 
 ### Requirements
@@ -402,6 +423,37 @@ cli-web-search providers
 ```
 
 ## Development
+
+```bash
+# Build debug binary
+make debug
+
+# Build release binary
+make build
+
+# Run tests
+make test
+
+# Run linter
+make lint
+
+# Format code
+make fmt
+
+# Run all checks (format, lint, test)
+make check
+
+# Clean build artifacts
+make clean
+
+# Build Debian package
+make deb
+
+# Show all available targets
+make help
+```
+
+### Using Cargo Directly
 
 ```bash
 # Run tests
