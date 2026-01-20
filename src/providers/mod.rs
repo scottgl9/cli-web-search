@@ -398,4 +398,159 @@ mod tests {
         assert_eq!(options.num_results, 5);
         assert_eq!(options.safe_search, SafeSearch::Strict);
     }
+
+    #[test]
+    fn test_search_options_defaults() {
+        let options = SearchOptions::new();
+        assert_eq!(options.num_results, 10);
+        assert_eq!(options.safe_search, SafeSearch::Moderate);
+        assert!(options.date_range.is_none());
+        assert!(options.include_domains.is_none());
+        assert!(options.exclude_domains.is_none());
+        assert_eq!(options.timeout, Duration::from_secs(30));
+    }
+
+    #[test]
+    fn test_search_options_with_date_range() {
+        let options = SearchOptions::new()
+            .with_date_range(Some(DateRange::Week));
+        assert_eq!(options.date_range, Some(DateRange::Week));
+    }
+
+    #[test]
+    fn test_search_options_with_timeout() {
+        let options = SearchOptions::new()
+            .with_timeout(Duration::from_secs(60));
+        assert_eq!(options.timeout, Duration::from_secs(60));
+    }
+
+    #[test]
+    fn test_provider_registry_new() {
+        let registry = ProviderRegistry::new();
+        assert!(registry.providers.is_empty());
+        assert!(registry.fallback_order.is_empty());
+    }
+
+    #[test]
+    fn test_provider_registry_register() {
+        let mut registry = ProviderRegistry::new();
+        registry.register(Box::new(BraveProvider::new("test-key".to_string())));
+        assert_eq!(registry.providers.len(), 1);
+    }
+
+    #[test]
+    fn test_provider_registry_get() {
+        let mut registry = ProviderRegistry::new();
+        registry.register(Box::new(BraveProvider::new("test-key".to_string())));
+        
+        let provider = registry.get("brave");
+        assert!(provider.is_some());
+        assert_eq!(provider.unwrap().name(), "brave");
+        
+        let missing = registry.get("nonexistent");
+        assert!(missing.is_none());
+    }
+
+    #[test]
+    fn test_provider_registry_configured_providers() {
+        let mut registry = ProviderRegistry::new();
+        registry.register(Box::new(BraveProvider::new("test-key".to_string())));
+        registry.register(Box::new(BraveProvider::new(String::new()))); // Not configured
+        
+        let configured = registry.configured_providers();
+        assert_eq!(configured.len(), 1);
+    }
+
+    #[test]
+    fn test_provider_registry_list_providers() {
+        let mut registry = ProviderRegistry::new();
+        registry.register(Box::new(BraveProvider::new("test-key".to_string())));
+        registry.register(Box::new(TavilyProvider::new(String::new())));
+        
+        let list = registry.list_providers();
+        assert_eq!(list.len(), 2);
+        
+        let brave_status = list.iter().find(|s| s.name == "brave").unwrap();
+        assert!(brave_status.configured);
+        
+        let tavily_status = list.iter().find(|s| s.name == "tavily").unwrap();
+        assert!(!tavily_status.configured);
+    }
+
+    #[test]
+    fn test_provider_registry_fallback_order() {
+        let mut registry = ProviderRegistry::new();
+        registry.register(Box::new(BraveProvider::new("brave-key".to_string())));
+        registry.register(Box::new(TavilyProvider::new("tavily-key".to_string())));
+        registry.register(Box::new(GoogleProvider::new("google-key".to_string(), "cx".to_string())));
+        
+        // Set fallback order to put tavily first
+        registry.set_fallback_order(vec!["tavily".to_string(), "brave".to_string(), "google".to_string()]);
+        
+        let providers = registry.providers_in_order();
+        assert_eq!(providers.len(), 3);
+        assert_eq!(providers[0].name(), "tavily");
+        assert_eq!(providers[1].name(), "brave");
+        assert_eq!(providers[2].name(), "google");
+    }
+
+    #[test]
+    fn test_provider_registry_providers_in_order_with_unconfigured() {
+        let mut registry = ProviderRegistry::new();
+        registry.register(Box::new(BraveProvider::new("brave-key".to_string())));
+        registry.register(Box::new(TavilyProvider::new(String::new()))); // Not configured
+        
+        registry.set_fallback_order(vec!["tavily".to_string(), "brave".to_string()]);
+        
+        let providers = registry.providers_in_order();
+        // Only brave should be returned since tavily is not configured
+        assert_eq!(providers.len(), 1);
+        assert_eq!(providers[0].name(), "brave");
+    }
+
+    #[test]
+    fn test_search_result_deserialization() {
+        let json = r#"{
+            "title": "Test Title",
+            "url": "https://example.com",
+            "snippet": "Test snippet",
+            "position": 1
+        }"#;
+        
+        let result: SearchResult = serde_json::from_str(json).unwrap();
+        assert_eq!(result.title, "Test Title");
+        assert_eq!(result.url, "https://example.com");
+        assert_eq!(result.snippet, "Test snippet");
+        assert_eq!(result.position, 1);
+        assert!(result.published_date.is_none());
+        assert!(result.source.is_none());
+    }
+
+    #[test]
+    fn test_search_result_with_optional_fields() {
+        let result = SearchResult {
+            title: "Test".to_string(),
+            url: "https://example.com".to_string(),
+            snippet: "Snippet".to_string(),
+            position: 1,
+            published_date: Some("2024-01-01".to_string()),
+            source: Some("example.com".to_string()),
+        };
+        
+        let json = serde_json::to_string(&result).unwrap();
+        assert!(json.contains("published_date"));
+        assert!(json.contains("2024-01-01"));
+        assert!(json.contains("source"));
+    }
+
+    #[test]
+    fn test_provider_status_debug() {
+        let status = ProviderStatus {
+            name: "brave".to_string(),
+            configured: true,
+        };
+        let debug_str = format!("{:?}", status);
+        assert!(debug_str.contains("brave"));
+        assert!(debug_str.contains("true"));
+    }
 }

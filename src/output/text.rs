@@ -84,6 +84,17 @@ mod tests {
     use super::*;
     use crate::providers::SearchResult;
 
+    fn create_test_result(title: &str, position: usize) -> SearchResult {
+        SearchResult {
+            title: title.to_string(),
+            url: format!("https://example.com/{}", position),
+            snippet: format!("Snippet for {}", title),
+            position,
+            published_date: None,
+            source: None,
+        }
+    }
+
     #[test]
     fn test_text_formatter() {
         let response = SearchResponse::new(
@@ -125,5 +136,121 @@ mod tests {
 
         assert_eq!(result, "Short snippet");
         assert!(!result.ends_with("..."));
+    }
+
+    #[test]
+    fn test_text_formatter_default() {
+        let formatter = TextFormatter::default();
+        let response = SearchResponse::new(
+            "test".to_string(),
+            "brave".to_string(),
+            vec![],
+            100,
+        );
+        let output = formatter.format(&response);
+        assert!(output.contains("Search:"));
+    }
+
+    #[test]
+    fn test_text_empty_results() {
+        let response = SearchResponse::new(
+            "no results".to_string(),
+            "google".to_string(),
+            vec![],
+            50,
+        );
+
+        let formatter = TextFormatter::new();
+        let output = formatter.format(&response);
+
+        assert!(output.contains("No results found."));
+    }
+
+    #[test]
+    fn test_text_multiple_results() {
+        let response = SearchResponse::new(
+            "query".to_string(),
+            "brave".to_string(),
+            vec![
+                create_test_result("First Result", 1),
+                create_test_result("Second Result", 2),
+                create_test_result("Third Result", 3),
+            ],
+            200,
+        );
+
+        let formatter = TextFormatter::new();
+        let output = formatter.format(&response);
+
+        assert!(output.contains("1. First Result"));
+        assert!(output.contains("2. Second Result"));
+        assert!(output.contains("3. Third Result"));
+        assert!(output.contains("3 results from brave"));
+    }
+
+    #[test]
+    fn test_text_header_separator() {
+        let response = SearchResponse::new(
+            "test".to_string(),
+            "brave".to_string(),
+            vec![],
+            100,
+        );
+
+        let formatter = TextFormatter::new();
+        let output = formatter.format(&response);
+
+        // Should have a separator line of equals signs
+        assert!(output.contains(&"=".repeat(60)));
+    }
+
+    #[test]
+    fn test_truncate_whitespace_cleanup() {
+        let messy_text = "This   has   extra   spaces   and\n\nnewlines";
+        let result = truncate_snippet(messy_text, 100);
+        
+        // Should collapse multiple whitespace
+        assert!(!result.contains("   "));
+        assert!(!result.contains('\n'));
+    }
+
+    #[test]
+    fn test_truncate_exact_length() {
+        let text = "Exactly fifty characters long text for testing!!";
+        let result = truncate_snippet(text, 48);
+        
+        // Should fit exactly without truncation
+        assert_eq!(result, text);
+    }
+
+    #[test]
+    fn test_text_search_time() {
+        let response = SearchResponse::new(
+            "test".to_string(),
+            "brave".to_string(),
+            vec![],
+            12345,
+        );
+
+        let formatter = TextFormatter::new();
+        let output = formatter.format(&response);
+
+        assert!(output.contains("12345ms"));
+    }
+
+    #[test]
+    fn test_text_url_indentation() {
+        let response = SearchResponse::new(
+            "query".to_string(),
+            "brave".to_string(),
+            vec![create_test_result("Test", 1)],
+            100,
+        );
+
+        let formatter = TextFormatter::new();
+        let output = formatter.format(&response);
+
+        // URLs should be indented with 3 spaces
+        assert!(output.contains("   https://"));
     }
 }

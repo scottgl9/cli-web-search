@@ -73,6 +73,17 @@ mod tests {
     use super::*;
     use crate::providers::SearchResult;
 
+    fn create_test_result(title: &str, position: usize) -> SearchResult {
+        SearchResult {
+            title: title.to_string(),
+            url: format!("https://example.com/{}", position),
+            snippet: format!("Snippet for {}", title),
+            position,
+            published_date: None,
+            source: None,
+        }
+    }
+
     #[test]
     fn test_markdown_formatter() {
         let response = SearchResponse::new(
@@ -122,5 +133,103 @@ mod tests {
         let output = formatter.format(&response);
 
         assert!(output.contains("*No results found.*"));
+    }
+
+    #[test]
+    fn test_markdown_default() {
+        let formatter = MarkdownFormatter::default();
+        let response = SearchResponse::new(
+            "test".to_string(),
+            "brave".to_string(),
+            vec![],
+            100,
+        );
+        let output = formatter.format(&response);
+        assert!(output.contains("# Search Results:"));
+    }
+
+    #[test]
+    fn test_markdown_with_published_date() {
+        let response = SearchResponse::new(
+            "query".to_string(),
+            "brave".to_string(),
+            vec![SearchResult {
+                title: "Article".to_string(),
+                url: "https://example.com".to_string(),
+                snippet: "Content".to_string(),
+                position: 1,
+                published_date: Some("2024-01-15".to_string()),
+                source: None,
+            }],
+            100,
+        );
+
+        let formatter = MarkdownFormatter::new();
+        let output = formatter.format(&response);
+
+        assert!(output.contains("**Published:** 2024-01-15"));
+    }
+
+    #[test]
+    fn test_markdown_separators() {
+        let response = SearchResponse::new(
+            "query".to_string(),
+            "brave".to_string(),
+            vec![
+                create_test_result("Result 1", 1),
+                create_test_result("Result 2", 2),
+            ],
+            100,
+        );
+
+        let formatter = MarkdownFormatter::new();
+        let output = formatter.format(&response);
+
+        // Should have separator between results
+        let separator_count = output.matches("---").count();
+        assert!(separator_count >= 2); // At least one after header and one between/after results
+    }
+
+    #[test]
+    fn test_markdown_result_positions() {
+        let response = SearchResponse::new(
+            "query".to_string(),
+            "brave".to_string(),
+            vec![
+                create_test_result("First", 1),
+                create_test_result("Second", 2),
+                create_test_result("Third", 3),
+            ],
+            100,
+        );
+
+        let formatter = MarkdownFormatter::new();
+        let output = formatter.format(&response);
+
+        assert!(output.contains("## 1. First"));
+        assert!(output.contains("## 2. Second"));
+        assert!(output.contains("## 3. Third"));
+    }
+
+    #[test]
+    fn test_markdown_url_formatting() {
+        let response = SearchResponse::new(
+            "query".to_string(),
+            "brave".to_string(),
+            vec![SearchResult {
+                title: "Test".to_string(),
+                url: "https://example.com/path?query=value".to_string(),
+                snippet: "Content".to_string(),
+                position: 1,
+                published_date: None,
+                source: None,
+            }],
+            100,
+        );
+
+        let formatter = MarkdownFormatter::new();
+        let output = formatter.format(&response);
+
+        assert!(output.contains("**URL:** https://example.com/path?query=value"));
     }
 }

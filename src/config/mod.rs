@@ -365,4 +365,158 @@ mod tests {
         assert!(enabled.contains(&"brave".to_string()));
         assert!(!enabled.contains(&"google".to_string()));
     }
+
+    #[test]
+    fn test_defaults_config() {
+        let defaults = DefaultsConfig::default();
+        assert_eq!(defaults.num_results, 10);
+        assert_eq!(defaults.safe_search, "moderate");
+        assert_eq!(defaults.timeout, 30);
+        assert_eq!(defaults.format, "text");
+    }
+
+    #[test]
+    fn test_cache_config_default() {
+        let cache = CacheConfig::default();
+        assert!(cache.enabled);
+        assert_eq!(cache.ttl_seconds, 3600);
+        assert_eq!(cache.max_entries, 1000);
+    }
+
+    #[test]
+    fn test_providers_config_default() {
+        let providers = ProvidersConfig::default();
+        assert!(providers.brave.is_none());
+        assert!(providers.google.is_none());
+        assert!(providers.duckduckgo.is_none());
+        assert!(providers.tavily.is_none());
+        assert!(providers.serper.is_none());
+        assert!(providers.firecrawl.is_none());
+    }
+
+    #[test]
+    fn test_mask_api_key_edge_cases() {
+        // Exactly 8 characters
+        assert_eq!(mask_api_key("12345678"), "********");
+        // Empty string
+        assert_eq!(mask_api_key(""), "");
+        // Very long key
+        let long_key = "a".repeat(100);
+        let masked = mask_api_key(&long_key);
+        assert!(masked.starts_with("aaaa"));
+        assert!(masked.ends_with("aaaa"));
+        assert!(masked.contains("..."));
+    }
+
+    #[test]
+    fn test_enabled_providers_all() {
+        let mut config = Config::default();
+        config.providers.brave = Some(BraveConfig {
+            api_key: "key".to_string(),
+            enabled: true,
+        });
+        config.providers.google = Some(GoogleConfig {
+            api_key: "key".to_string(),
+            cx: "cx".to_string(),
+            enabled: true,
+        });
+        config.providers.duckduckgo = Some(DuckDuckGoConfig { enabled: true });
+        config.providers.tavily = Some(TavilyConfig {
+            api_key: "key".to_string(),
+            enabled: true,
+        });
+        config.providers.serper = Some(SerperConfig {
+            api_key: "key".to_string(),
+            enabled: true,
+        });
+        config.providers.firecrawl = Some(FirecrawlConfig {
+            api_key: "key".to_string(),
+            enabled: true,
+        });
+
+        let enabled = config.enabled_providers();
+        assert_eq!(enabled.len(), 6);
+        assert!(enabled.contains(&"brave".to_string()));
+        assert!(enabled.contains(&"google".to_string()));
+        assert!(enabled.contains(&"duckduckgo".to_string()));
+        assert!(enabled.contains(&"tavily".to_string()));
+        assert!(enabled.contains(&"serper".to_string()));
+        assert!(enabled.contains(&"firecrawl".to_string()));
+    }
+
+    #[test]
+    fn test_to_flat_map() {
+        let mut config = Config::default();
+        config.providers.brave = Some(BraveConfig {
+            api_key: "test-api-key-12345".to_string(),
+            enabled: true,
+        });
+
+        let map = config.to_flat_map();
+        
+        // Check that API key is masked
+        let brave_key = map.get("providers.brave.api_key").unwrap();
+        assert!(brave_key.contains("..."));
+        assert!(!brave_key.contains("test-api-key-12345"));
+        
+        // Check enabled
+        assert_eq!(map.get("providers.brave.enabled").unwrap(), "true");
+        
+        // Check defaults
+        assert_eq!(map.get("defaults.num_results").unwrap(), "10");
+        assert_eq!(map.get("defaults.safe_search").unwrap(), "moderate");
+        
+        // Check cache
+        assert_eq!(map.get("cache.enabled").unwrap(), "true");
+    }
+
+    #[test]
+    fn test_config_serialization() {
+        let config = Config::default();
+        let yaml = serde_yaml::to_string(&config).unwrap();
+        assert!(yaml.contains("defaults"));
+        assert!(yaml.contains("cache"));
+    }
+
+    #[test]
+    fn test_config_deserialization() {
+        let yaml = r#"
+default_provider: brave
+providers:
+  brave:
+    api_key: "test-key"
+    enabled: true
+defaults:
+  num_results: 5
+  safe_search: strict
+  timeout: 60
+  format: json
+cache:
+  enabled: false
+  ttl_seconds: 1800
+  max_entries: 500
+"#;
+
+        let config: Config = serde_yaml::from_str(yaml).unwrap();
+        assert_eq!(config.default_provider, Some("brave".to_string()));
+        assert!(config.providers.brave.is_some());
+        assert_eq!(config.providers.brave.as_ref().unwrap().api_key, "test-key");
+        assert_eq!(config.defaults.num_results, 5);
+        assert_eq!(config.defaults.safe_search, "strict");
+        assert!(!config.cache.enabled);
+        assert_eq!(config.cache.ttl_seconds, 1800);
+    }
+
+    #[test]
+    fn test_fallback_order() {
+        let mut config = Config::default();
+        config.fallback_order = vec![
+            "brave".to_string(),
+            "google".to_string(),
+            "tavily".to_string(),
+        ];
+
+        assert_eq!(config.fallback_order.len(), 3);
+        assert_eq!(config.fallback_order[0], "brave");
+    }
 }
