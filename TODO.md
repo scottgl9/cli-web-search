@@ -42,7 +42,7 @@ Task tracking for the cli-web-search project. Check items off as completed.
 - [x] Parse search results
 - [x] Implement rate limit handling
 - [x] Add unit tests
-- [ ] Add integration tests
+- [x] Add integration tests (mock server)
 
 ### Google CSE Provider (P0)
 - [x] Implement Google CSE API client
@@ -50,7 +50,7 @@ Task tracking for the cli-web-search project. Check items off as completed.
 - [x] Parse search results
 - [x] Implement rate limit handling
 - [x] Add unit tests
-- [ ] Add integration tests
+- [x] Add integration tests (mock server)
 
 ### Tavily Provider (P1)
 - [x] Implement Tavily Search API client
@@ -58,7 +58,7 @@ Task tracking for the cli-web-search project. Check items off as completed.
 - [x] Parse search results
 - [x] Implement rate limit handling
 - [x] Add unit tests
-- [ ] Add integration tests
+- [x] Add integration tests (mock server)
 
 ### Firecrawl Provider (P1)
 - [x] Implement Firecrawl Search API client
@@ -66,7 +66,7 @@ Task tracking for the cli-web-search project. Check items off as completed.
 - [x] Parse search results
 - [x] Implement rate limit handling
 - [x] Add unit tests
-- [ ] Add integration tests
+- [x] Add integration tests (mock server)
 
 ### Output Formatting
 - [x] Define output format trait
@@ -131,9 +131,9 @@ Task tracking for the cli-web-search project. Check items off as completed.
 - [x] Add end-to-end tests (12 mock server tests)
 - [x] Add mock provider tests
 - [x] Test on Linux x86_64
-- [ ] Test on Linux aarch64
-- [ ] Test on macOS x86_64
-- [ ] Test on macOS aarch64
+- [x] Test on Linux aarch64 (CI)
+- [x] Test on macOS x86_64 (CI)
+- [x] Test on macOS aarch64 (CI)
 - [x] Test on Windows (CI)
 
 ### CI/CD & Releases
@@ -159,8 +159,8 @@ Task tracking for the cli-web-search project. Check items off as completed.
 
 ### Windows Support
 - [x] Test on Windows (CI)
-- [ ] Handle Windows-specific paths
-- [ ] Create Windows installer
+- [x] Handle Windows-specific paths (directories crate)
+- [ ] Create Windows installer (Inno Setup/WiX)
 - [x] Update CI for Windows builds
 
 ### Additional Providers

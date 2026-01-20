@@ -1,1 +1,42 @@
+# Build artifacts
 target/
+debug/
+release/
+
+# Cargo
+Cargo.lock
+!Cargo.lock
+*.rlib
+
+# IDE and editor files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Environment and secrets
+.env
+.env.*
+*.pem
+*.key
+credentials.json
+
+# Test and coverage
+*.profraw
+*.profdata
+lcov.info
+coverage/
+tarpaulin-report.html
+
+# OS files
+Thumbs.db
+.DS_Store
+
+# Backup files
+*.bak
+*.orig
+
+# Log files
+*.log
