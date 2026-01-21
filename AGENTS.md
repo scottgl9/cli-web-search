@@ -9,7 +9,6 @@ This document provides guidelines for AI agents (OpenCode, Claude Code, Aider, C
 **cli-web-search** is a cross-platform command-line tool that provides web search capabilities to AI agents and CLI users. It supports multiple search API providers and outputs results in JSON or Markdown format.
 
 ### Key Files
-- `PRD.md` - Product Requirements Document (source of truth for features)
 - `TODO.md` - Detailed task tracking
 - `PROGRESS.md` - Completion progress tracking
 - `CLAUDE.md` - Claude-specific development workflow
@@ -23,10 +22,9 @@ This document provides guidelines for AI agents (OpenCode, Claude Code, Aider, C
 
 ### Before Starting Work
 
-1. **Read the PRD**: Understand the full scope and requirements
-2. **Check TODO.md**: See what tasks are pending
-3. **Check PROGRESS.md**: Understand current project state
-4. **Review existing code**: Understand patterns and conventions
+1. **Check TODO.md**: See what tasks are pending
+2. **Check PROGRESS.md**: Understand current project state
+3. **Review existing code**: Understand patterns and conventions
 
 ### During Development
 
@@ -298,13 +296,12 @@ Use conventional commits:
 
 When unclear about implementation details, consider:
 
-1. Does the PRD specify this behavior?
-2. Is there existing code that handles similar cases?
-3. What would provide the best user experience?
-4. Is this the simplest solution that works?
+1. Is there existing code that handles similar cases?
+2. What would provide the best user experience?
+3. Is this the simplest solution that works?
 
 ---
 
 ## Contact
 
-For questions about the project requirements, refer to the PRD or ask the project maintainer.
+For questions about the project requirements, ask the project maintainer.

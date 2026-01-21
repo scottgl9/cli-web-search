@@ -23,7 +23,7 @@ When beginning a development session:
 
 1. **Read project state**:
    ```
-   Read PRD.md, TODO.md, and PROGRESS.md
+   Read TODO.md and PROGRESS.md
    ```
 
 2. **Check current code state**:
@@ -43,7 +43,7 @@ When beginning a development session:
 
 ### Starting a New Feature
 
-1. **Understand the requirement** from PRD.md
+1. **Understand the requirement**
 2. **Create a plan** before coding
 3. **Implement incrementally** with tests
 4. **Update documentation** as you go
