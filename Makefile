@@ -6,7 +6,7 @@ PACKAGE_NAME := cli-web-search
 VERSION := $(shell grep '^version' Cargo.toml | head -1 | sed 's/.*= *"\(.*\)"/\1/')
 CARGO := cargo
 DESTDIR ?=
-PREFIX ?= /usr/local
+PREFIX ?= $(HOME)/.local
 BINDIR := $(PREFIX)/bin
 
 # Detect architecture for package naming
@@ -157,7 +157,7 @@ help:
 	@echo "  distclean            Clean all artifacts including packages"
 	@echo ""
 	@echo "Installation:"
-	@echo "  install              Install to system (PREFIX=$(PREFIX))"
+	@echo "  install              Install to ~/.local/bin (override with PREFIX=)"
 	@echo "  uninstall            Remove from system"
 	@echo ""
 	@echo "Packaging:"
