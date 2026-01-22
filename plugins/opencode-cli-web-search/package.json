@@ -1,0 +1,30 @@
+{
+  "name": "opencode-cli-web-search",
+  "version": "1.0.0",
+  "description": "OpenCode plugin for web search and URL fetching using cli-web-search",
+  "main": "index.ts",
+  "type": "module",
+  "keywords": ["opencode", "plugin", "web-search", "cli-web-search", "search"],
+  "author": {
+    "name": "Scott Glover",
+    "email": "scottgl@gmail.com"
+  },
+  "license": "Apache-2.0",
+  "homepage": "https://github.com/scottgl9/cli-web-search",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/scottgl9/cli-web-search.git",
+    "directory": "plugins/opencode-cli-web-search"
+  },
+  "peerDependencies": {
+    "@opencode-ai/plugin": ">=1.0.0"
+  },
+  "files": [
+    "index.ts",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

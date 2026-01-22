@@ -1,0 +1,23 @@
+{
+  "name": "cli-web-search",
+  "description": "Web search and URL fetching capabilities using cli-web-search tool",
+  "version": "1.0.0",
+  "author": {
+    "name": "Scott Glover",
+    "email": "scottgl@gmail.com"
+  },
+  "homepage": "https://github.com/scottgl9/cli-web-search",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/scottgl9/cli-web-search.git"
+  },
+  "license": "Apache-2.0",
+  "keywords": ["search", "web", "fetch", "research", "information"],
+  "requirements": {
+    "cli-web-search": {
+      "description": "cli-web-search command-line tool",
+      "install": "See https://github.com/scottgl9/cli-web-search#installation",
+      "check": "cli-web-search --version"
+    }
+  }
+}
