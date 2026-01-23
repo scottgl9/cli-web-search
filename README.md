@@ -357,6 +357,15 @@ cli-web-search -f json "your search query" 2>/dev/null
 
 The JSON output provides structured data that's easy for agents to parse and use.
 
+### AI Agent Plugins
+
+This repository includes ready-to-use plugins for popular AI coding assistants:
+
+- **OpenCode Plugin** (`.opencode/plugins/web-search.ts`) - Custom tools for web search and URL fetching
+- **Claude Code Plugin** (`.claude-plugin/` + `skills/`) - Agent Skills that Claude automatically uses
+
+See [PLUGINS.md](PLUGINS.md) for installation and usage instructions for both plugins.
+
 ## MCP Server Mode
 
 cli-web-search can run as an MCP (Model Context Protocol) server, allowing AI assistants like Claude Desktop to use it as a tool.
